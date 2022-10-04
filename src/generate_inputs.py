@@ -5,6 +5,16 @@ Script of functions to generate predicted and true output matrices.
 import numpy as np
 from typing import Mapping, Sequence
 
+QUESTION_1 = 'What other things do you experience right before or at the beginning of a seizure?'
+QUESTION_2 = 'Please describe what you feel right before or at the beginning of a seizure.'
+QUESTION_3 = 'Please specify other warning.'
+QUESTION_4 = 'Please specify other injuries.'
+QUESTION_5 = 'What injuries have you experienced during a seizure?'
+QUESTION_6 = 'Please specify other symptoms.'
+QUESTION_7 = 'Describe what happens during your seizures.'
+QUESTION_8 = 'Please describe what you feel right before or at the beginning of a seizure.'
+QUESTION_9 = 'How long do your seizures last?'
+
 FLAG_1_KEYS = ['']
 FLAG_2_KEYS = ['']
 FLAG_3_KEYS = ['']
