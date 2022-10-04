@@ -5,10 +5,6 @@ Script of functions to generate input matrix.
 import numpy as np
 from typing import Mapping, Sequence
 
-NON_EPILEPSY_BILLING_CODES = [
-    'G43.0', 'G43.1', 'G43.2', 'G43.3', 'G43.8', 'G43.9'
-]  # TODO: add in all specific codes
-
 FOCAL_EPILEPSY_BILLING_CODES = ['G40.0', 'G40.1', 'G40.2', 'G40.5', 'G41.2']
 GENERALISED_EPILEPSY_BILLING_CODES = [
     'G40.7', 'G41.1', 'G40.3', 'G40.6', 'G41.0', 'G40.4'
