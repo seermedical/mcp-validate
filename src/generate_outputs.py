@@ -25,7 +25,7 @@ def set_diagnosis(list_of_billing_codes: Sequence[str]):
     """
 
     # Init row for np.array
-    diagnosis_array = np.zeros(1, 5)
+    diagnosis_array = np.zeros([1, 5])
 
     # Populate rows
     if any([
@@ -201,7 +201,7 @@ def get_true_output(input_billing_codes: Mapping[str, Sequence[str]]):
     patient_keys = input_billing_codes.keys()
 
     # Init output array for true diagnoses
-    output_array = np.zeros(input_billing_codes.__len__(), 5)
+    output_array = np.zeros([input_billing_codes.__len__(), 5])
 
     for idx, patient in enumerate(patient_keys):
         patient_values = input_billing_codes[patient].values()
