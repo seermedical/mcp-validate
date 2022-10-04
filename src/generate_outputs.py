@@ -25,7 +25,7 @@ def set_diagnosis(list_of_billing_codes: Sequence[str]):
     """
 
     # Init row for np.array
-    diagnosis_array = np.zeros(1, 8)
+    diagnosis_array = np.zeros(1, 5)
 
     # Populate rows
     if any([
@@ -98,15 +98,15 @@ def get_predicted_output(input_array: np.ndarray):
         Elements are represented as 0 = negative diagnosis, or 1 = positive diagnosis. N.b. A
         patient may have multiple diagnoses.
         # Example:
-        # +--------------+----------+-------+-------------+---------+-----------+------+---------+
-        # | non_epilepsy | epilepsy | focal | generalized | absence | myoclonic | GTCS | unknown |
-        # +--------------+----------+-------+-------------+---------+-----------+------+---------+
-        # | 0            | 0        | 0     | 0           | 0       | 0         | 0    | 0       |
-        # +--------------+----------+-------+-------------+---------+-----------+------+---------+
-        # | 0            | 1        | 0     | 0           | 0       | 0         | 0    | 0       |
-        # +--------------+----------+-------+-------------+---------+-----------+------+---------+
-        # | 0            | 0        | 0     | 1           | 1       | 1         | 0    | 0       |
-        # +--------------+----------+-------+-------------+---------+-----------+------+---------+
+        # +--------------+----------+-------+-------------+---------+
+        # | non_epilepsy | epilepsy | focal | generalized | unknown |
+        # +--------------+----------+-------+-------------+---------+
+        # | 0            | 0        | 0     | 0           | 0       |
+        # +--------------+----------+-------+-------------+---------+
+        # | 0            | 1        | 1     | 0           | 0       |
+        # +--------------+----------+-------+-------------+---------+
+        # | 0            | 1        | 0     | 1           | 0       |
+        # +--------------+----------+-------+-------------+---------+
     """
 
     n_rows = input_array.shape[0]
@@ -186,22 +186,22 @@ def get_true_output(input_billing_codes: Mapping[str, Sequence[str]]):
         Elements are represented as 0 = negative diagnosis, or 1 = positive diagnosis. N.b. A
         patient may have multiple diagnoses.
         # Example:
-        # +--------------+----------+-------+-------------+---------+-----------+------+---------+
-        # | non_epilepsy | epilepsy | focal | generalized | absence | myoclonic | GTCS | unknown |
-        # +--------------+----------+-------+-------------+---------+-----------+------+---------+
-        # | 0            | 0        | 0     | 0           | 0       | 0         | 0    | 0       |
-        # +--------------+----------+-------+-------------+---------+-----------+------+---------+
-        # | 0            | 1        | 0     | 0           | 0       | 0         | 0    | 0       |
-        # +--------------+----------+-------+-------------+---------+-----------+------+---------+
-        # | 0            | 0        | 0     | 1           | 1       | 1         | 0    | 0       |
-        # +--------------+----------+-------+-------------+---------+-----------+------+---------+
+        # +--------------+----------+-------+-------------+---------+
+        # | non_epilepsy | epilepsy | focal | generalized | unknown |
+        # +--------------+----------+-------+-------------+---------+
+        # | 0            | 0        | 0     | 0           | 0       |
+        # +--------------+----------+-------+-------------+---------+
+        # | 0            | 1        | 1     | 0           | 0       |
+        # +--------------+----------+-------+-------------+---------+
+        # | 0            | 1        | 0     | 1           | 0       |
+        # +--------------+----------+-------+-------------+---------+
     """
     # TODO: instance where 'false' patients are provided, e.g. do not list any of the provided diagnostic flags,
     # i.e. verify number of patients with useful diagnosis?
     patient_keys = input_billing_codes.keys()
 
     # Init output array for true diagnoses
-    output_array = np.zeros(input_billing_codes.__len__(), 8)
+    output_array = np.zeros(input_billing_codes.__len__(), 5)
 
     for idx, patient in enumerate(patient_keys):
         patient_values = input_billing_codes[patient].values()
@@ -209,4 +209,5 @@ def get_true_output(input_billing_codes: Mapping[str, Sequence[str]]):
         output_array[idx] = set_diagnosis(list_of_billing_codes=patient_values)
 
     true_outputs = output_array.astype(int)
+
     return true_outputs
