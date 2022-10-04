@@ -196,8 +196,7 @@ def get_true_output(input_billing_codes: Mapping[str, Sequence[str]]):
         # | 0            | 1        | 0     | 1           | 0       |
         # +--------------+----------+-------+-------------+---------+
     """
-    # TODO: instance where 'false' patients are provided, e.g. do not list any of the provided diagnostic flags,
-    # i.e. verify number of patients with useful diagnosis?
+
     patient_keys = input_billing_codes.keys()
 
     # Init output array for true diagnoses
