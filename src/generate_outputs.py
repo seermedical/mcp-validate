@@ -7,23 +7,54 @@ Online tool: epipick.org
 """
 
 import numpy as np
-from typing import Mapping
+from typing import Mapping, Sequence
 
-from get_input_values import get_flag_value
+NON_EPILEPSY_BILLING_CODES = []
 
-FLAG_1_KEYS = ['']
-FLAG_2_KEYS = ['']
-FLAG_3_KEYS = ['']
-FLAG_4_KEYS = ['']
-FLAG_5_KEYS = ['']
-FLAG_6_KEYS = ['']
+FOCAL_EPILEPSY_BILLING_CODES = []
+GENERALISED_EPILEPSY_BILLING_CODES = []
+UNKNOWN_EPILEPSY_BILLING_CODES = ['G40.8', 'G40.9', 'G41.8', 'G41.9']
+EPILEPSY_BILLING_CODES = FOCAL_EPILEPSY_BILLING_CODES + GENERALISED_EPILEPSY_BILLING_CODES + UNKNOWN_EPILEPSY_BILLING_CODES
 
-FLAG_1_KEYWORDS = ['']
-FLAG_2_KEYWORDS = ['']
-FLAG_3_KEYWORDS = ['']
-FLAG_4_KEYWORDS = ['']
-FLAG_5_KEYWORDS = ['']
-FLAG_6_KEYWORDS = ['']
+
+def set_diagnosis(list_of_billing_codes: Sequence[str]):
+    """_summary_
+
+    Args:
+        list_of_billing_codes (Sequence[str]): _description_
+    """
+
+    # Init row for np.array
+    diagnosis_array = np.zeros(1, 8)
+
+    # Populate rows
+    if any([
+            billing_code for billing_code in EPILEPSY_BILLING_CODES
+            if billing_code in list_of_billing_codes
+    ]):
+        diagnosis_array[0, 1] = 1
+    else:
+        diagnosis_array[0, 0] = 1
+
+        return diagnosis_array
+
+    if any([
+            billing_code for billing_code in FOCAL_EPILEPSY_BILLING_CODES
+            if billing_code in list_of_billing_codes
+    ]):
+        diagnosis_array[0, 2] = 1
+    if any([
+            billing_code for billing_code in GENERALISED_EPILEPSY_BILLING_CODES
+            if billing_code in list_of_billing_codes
+    ]):
+        diagnosis_array[0, 3] = 1
+    if any([
+            billing_code for billing_code in UNKNOWN_EPILEPSY_BILLING_CODES
+            if billing_code in list_of_billing_codes
+    ]):
+        diagnosis_array[0, 4] = 1
+
+    return diagnosis_array
 
 
 def has_undefined_values(input_array: np.ndarray, threshold: int = 3):
@@ -46,94 +77,7 @@ def has_positive_values(input_array: np.ndarray, threshold: int = 0):
     return np.count_nonzero(input_array) > threshold
 
 
-def transform_input(input_dict: Mapping[str, Mapping[str, str]]):
-    """Takes dictionary of patient's responses to survey questions
-    and transforms to One Hot Encoded matrix."
-
-    Args:
-        input_dict (dict): Dictionary where keys represent a patient,
-        enclosing another dictionary of key (question), value (answer) pairs.
-        N.b. If no value (answer), to a key (question), an empty string is expected.
-        Example:
-            {
-                'patient_1': {
-                    'How long do your seizures last?': 'a few seconds',
-                    'Describe what happens during your seizures.': '',
-                    ...
-                }
-            }
-      
-    Returns:
-        np.ndarray: Input array where rows represent each patient, and columns
-        represent each input (i.e. question). Inputs are as follows:
-            input_1 - Did skin turn pale before event?
-            input_2 - Before event included urination or defacation, AND event included loss of
-                        consciousness
-            input_3 - Event duration was < 10 sec, AND event included loss of awareness and
-                        fall / slump
-            input_4 - Event duration was > 10 min, AND event included eyes closed
-            input_5 - Before event included severe headache
-            input 6 - Before event included standing up OR sit up OR posture change OR coughing
-                        OR pain, AND event included falling
-            input_7 - Has grey matter lesion (via imaging)
-            input_8 - Event included lip smacking OR chewing
-            input_9 - Events are nocturnal-only
-            input_10 - Onset >= 21 y.o.
-            input_11 - Event duration < 20 sec, AND event included staring OR blank OR unresponsive
-                        OR unaware, AND after event did not include confusion
-            input_12 - Before event excluded resting NOR sleeping AND event included jerks
-            input_13 - Before event included waking w/in 1 hr OR jerking AND event included
-                        convulsions on both sides, stiffening, jerks
-
-            Elements are represented as NaN = no data, 0 = 'no', or 1 = 'yes'.
-            Example:
-                # +--------+--------+--------+--------+--------+--------+--------+------+----------------+----------+---------+-------+--------------+
-                # | flag_1 | flag_2 | flag_3 | flag_4 | flag_5 | flag_6 | lesion | lips | night_seizures | onset_21 | staring | jerks | tonic_clonic |
-                # +--------+--------+--------+--------+--------+--------+--------+------+----------------+----------+---------+-------+--------------+
-                # | NaN    | NaN    | NaN    | NaN    | NaN    | NaN    | 1      | 0    | 0              | 0        | 0       | 0     | 0            |
-                # +--------+--------+--------+--------+--------+--------+--------+------+----------------+----------+---------+-------+--------------+
-                # | 1      | 1      | 1      | 0      | 0      | 0      | 1      | 0    | 0              | 0        | 0       | 0     | 0            |
-                # +--------+--------+--------+--------+--------+--------+--------+------+----------------+----------+---------+-------+--------------+
-                # | 1      | 1      | 1      | 0      | 0      | 0      | 0      | 0    | 0              | 0        | 1       | 1     | 0            |
-                # +--------+--------+--------+--------+--------+--------+--------+------+----------------+----------+---------+-------+--------------+
-    """
-    patients = input_dict.keys()
-
-    # Init (transformed) One Hot Encoded input array
-    input_array = np.zeros(len(patients), 13)
-
-    for idx, patient in enumerate(patients):
-        patient_dict = input_dict[patient]
-
-        input_array[idx, 0] = get_flag_value(
-            input_dict={key: patient_dict[key]
-                        for key in FLAG_1_KEYS},
-            list_of_keywords=FLAG_1_KEYWORDS)
-        input_array[idx, 1] = get_flag_value(
-            {key: patient_dict[key]
-             for key in FLAG_2_KEYS},
-            list_of_keywords=FLAG_2_KEYWORDS)
-        input_array[idx, 2] = get_flag_value(
-            {key: patient_dict[key]
-             for key in FLAG_3_KEYS},
-            list_of_keywords=FLAG_3_KEYWORDS)
-        input_array[idx, 3] = get_flag_value(
-            {key: patient_dict[key]
-             for key in FLAG_4_KEYS},
-            list_of_keywords=FLAG_4_KEYWORDS)
-        input_array[idx, 4] = get_flag_value(
-            {key: patient_dict[key]
-             for key in FLAG_5_KEYS},
-            list_of_keywords=FLAG_5_KEYWORDS)
-        input_array[idx, 5] = get_flag_value(
-            {key: patient_dict[key]
-             for key in FLAG_6_KEYS},
-            list_of_keywords=FLAG_6_KEYWORDS)
-
-    return input_array.astype(int)
-
-
-def generate_output(input_array: np.ndarray):
+def get_predicted_output(input_array: np.ndarray):
     """Predicts diagnosis of each patient based on a set of inputs.
 
     Args:
@@ -222,15 +166,47 @@ def generate_output(input_array: np.ndarray):
     return output_array
 
 
-def set_diagnosis(output_array):
-    # list of possible billing codes for each patient
-    return
+def get_true_output(input_billing_codes: Mapping[str, Sequence[str]]):
+    """Defines diagnosis for each patient based on a set of billing codes.
 
+    Args:
+        dict: Dictionary of patient's billing codes.
 
-if __name__ == "__main__":
+    Returns:
+        np.ndarray: Output array where rows represent patients and columns represent
+        true diagnosis. Outputs are as follows:
+        output_1 - Non-epileptic paroxysmal event
+        output_2 - Epileptic
+        output_3 - Focal
+        output_4 - Generalized
+        output_5 - Absence
+        output_6 - Myoclonic
+        output_7 - GTCS (Generalized Tonic Clonic Seizures)
 
-    # Create mock input data
-    mock_input_data = np.zeros((5, 13))
+        Elements are represented as 0 = negative diagnosis, or 1 = positive diagnosis. N.b. A
+        patient may have multiple diagnoses.
+        # Example:
+        # +--------------+----------+-------+-------------+---------+-----------+------+---------+
+        # | non_epilepsy | epilepsy | focal | generalized | absence | myoclonic | GTCS | unknown |
+        # +--------------+----------+-------+-------------+---------+-----------+------+---------+
+        # | 0            | 0        | 0     | 0           | 0       | 0         | 0    | 0       |
+        # +--------------+----------+-------+-------------+---------+-----------+------+---------+
+        # | 0            | 1        | 0     | 0           | 0       | 0         | 0    | 0       |
+        # +--------------+----------+-------+-------------+---------+-----------+------+---------+
+        # | 0            | 0        | 0     | 1           | 1       | 1         | 0    | 0       |
+        # +--------------+----------+-------+-------------+---------+-----------+------+---------+
+    """
+    # TODO: instance where 'false' patients are provided, e.g. do not list any of the provided diagnostic flags,
+    # i.e. verify number of patients with useful diagnosis?
+    patient_keys = input_billing_codes.keys()
 
-    # Run model
-    mock_output_data = generate_output(mock_input_data)
+    # Init output array for true diagnoses
+    output_array = np.zeros(input_billing_codes.__len__(), 8)
+
+    for idx, patient in enumerate(patient_keys):
+        patient_values = input_billing_codes[patient].values()
+
+        output_array[idx] = set_diagnosis(list_of_billing_codes=patient_values)
+
+    true_outputs = output_array.astype(int)
+    return true_outputs
