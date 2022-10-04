@@ -1,3 +1,13 @@
+"""
+Model adapted from Beniczky S, et. al. A web-based algorithm to rapidly classify seizures for
+the purpose of drug selection. Epilepsia. 2021 Oct;62(10):2474-2484. doi: 10.1111/epi.17039.
+Epub 2021 Aug 22. PMID: 34420206.
+
+Online tool: epipick.org
+
+Authors: Dominique Eden & Pip Karoly
+"""
+
 from typing import Mapping, Sequence
 
 from generate_inputs import transform_input

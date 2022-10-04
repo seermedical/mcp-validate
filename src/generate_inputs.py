@@ -1,3 +1,7 @@
+"""
+Script of functions to generate predicted and true output matrices.
+"""
+
 import numpy as np
 from typing import Mapping, Sequence
 
@@ -50,7 +54,7 @@ def transform_input(input_dict: Mapping[str, Mapping[str, str]]):
                     ...
                 }
             }
-      
+=
     Returns:
         np.ndarray: Input array where rows represent each patient, and columns
         represent each input (i.e. question). Inputs are as follows:
