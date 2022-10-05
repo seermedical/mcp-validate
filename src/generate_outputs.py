@@ -166,7 +166,7 @@ def get_true_output(input_billing_codes: Mapping[str, Sequence[str]]):
     """Defines diagnosis for each patient based on a set of billing codes.
 
     Args:
-        dict: Dictionary of patient's billing codes.
+        input_billing_codes: Dictionary of patients' billing codes.
 
     Returns:
         np.ndarray: Output array where rows represent patients and columns represent
