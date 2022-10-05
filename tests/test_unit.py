@@ -14,7 +14,7 @@ def patient_1_dict():
         '',
         'Please specify other injuries.':
         '',
-        'What injuries have you experienced during a seizure?s':
+        'What injuries have you experienced during a seizures':
         'Response 3',
         'Please specify other symptoms.':
         'Response 4',
@@ -57,7 +57,7 @@ class TestGetInputValues:
     @pytest.mark.parametrize("patient_dict", "expected_boolean",
                              [(patient_1_dict, True)],
                              [(patient_2_dict, False)])
-    def test_get_input_values(self, mock_patient_dict, expected_boolean):
+    def test_get_input_values(self, patient_dict, expected_boolean):
         result = get_input_value(input_dict=patient_dict,
                                  list_of_keywords=FLAG_1_KEYWORDS)
 
