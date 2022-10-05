@@ -25,8 +25,8 @@ def set_diagnosis(list_of_billing_codes: Sequence[str]):
 
     # Populate rows
     if any([
-            billing_code for billing_code in EPILEPSY_BILLING_CODES
-            if billing_code in list_of_billing_codes
+            billing_code in EPILEPSY_BILLING_CODES
+            for billing_code in list_of_billing_codes
     ]):
         diagnosis_array[0, 1] = 1
     else:
