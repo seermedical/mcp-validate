@@ -103,7 +103,7 @@ def transform_input(input_dict: Mapping[str, Mapping[str, str]]):
     patients = input_dict.keys()
 
     # Init (transformed) One Hot Encoded input array
-    input_array = np.zeros(input_dict.__len__(), 13)
+    input_array = np.zeros(len(input_dict), 13)
 
     for idx, patient in enumerate(patients):
         patient_dict = input_dict[patient]
