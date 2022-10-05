@@ -34,8 +34,8 @@ def split_values(input_dict: dict):
     return ' '.join(list(input_dict.values())).split()
 
 
-def get_flag_value(input_dict: Mapping[str, str],
-                   list_of_keywords: Sequence[str]):
+def get_input_value(input_dict: Mapping[str, str],
+                    list_of_keywords: Sequence[str]):
 
     # Return NaN if no answers provided to key questions
     input_values = input_dict.keys()
@@ -107,27 +107,27 @@ def transform_input(input_dict: Mapping[str, Mapping[str, str]]):
     for idx, patient in enumerate(patients):
         patient_dict = input_dict[patient]
 
-        input_array[idx, 0] = get_flag_value(
+        input_array[idx, 0] = get_input_value(
             input_dict={key: patient_dict[key]
                         for key in FLAG_1_KEYS},
             list_of_keywords=FLAG_1_KEYWORDS)
-        input_array[idx, 1] = get_flag_value(
+        input_array[idx, 1] = get_input_value(
             {key: patient_dict[key]
              for key in FLAG_2_KEYS},
             list_of_keywords=FLAG_2_KEYWORDS)
-        input_array[idx, 2] = get_flag_value(
+        input_array[idx, 2] = get_input_value(
             {key: patient_dict[key]
              for key in FLAG_3_KEYS},
             list_of_keywords=FLAG_3_KEYWORDS)
-        input_array[idx, 3] = get_flag_value(
+        input_array[idx, 3] = get_input_value(
             {key: patient_dict[key]
              for key in FLAG_4_KEYS},
             list_of_keywords=FLAG_4_KEYWORDS)
-        input_array[idx, 4] = get_flag_value(
+        input_array[idx, 4] = get_input_value(
             {key: patient_dict[key]
              for key in FLAG_5_KEYS},
             list_of_keywords=FLAG_5_KEYWORDS)
-        input_array[idx, 5] = get_flag_value(
+        input_array[idx, 5] = get_input_value(
             {key: patient_dict[key]
              for key in FLAG_6_KEYS},
             list_of_keywords=FLAG_6_KEYWORDS)
