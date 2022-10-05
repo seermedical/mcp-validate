@@ -2,8 +2,9 @@
 Script of functions to generate predicted and true output matrices.
 """
 
-import numpy as np
 from typing import Mapping, Sequence
+
+import numpy as np
 
 QUESTION_1 = 'What other things do you experience right before or at the beginning of a seizure?'
 QUESTION_2 = 'Please describe what you feel right before or at the beginning of a seizure.'
