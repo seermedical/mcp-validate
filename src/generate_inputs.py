@@ -5,6 +5,7 @@ Script of functions to generate predicted and true output matrices.
 from typing import Mapping, Sequence
 
 import numpy as np
+import spacy
 
 QUESTION_1 = 'What other things do you experience right before or at the beginning of a seizure?'
 QUESTION_2 = 'Please describe what you feel right before or at the beginning of a seizure.'
@@ -31,19 +32,16 @@ FLAG_5_KEYWORDS = ['']
 FLAG_6_KEYWORDS = ['']
 
 
-def split_values(input_dict: dict):
-    return ' '.join(list(input_dict.values())).split()
-
-
-def get_flag_value(input_dict: Mapping[str, str],
+def get_flag_value(nlp: spacy.load, input_dict: Mapping[str, str],
                    list_of_keywords: Sequence[str]):
 
     # Return NaN if no answers provided to key questions
-    input_values = input_dict.keys()
+    input_values = input_dict.values()
     if not any(input_values):
         return np.nan
 
-    split_words = split_values(input_values)
+    input_values_string = ' '.join(input_values)
+    split_words = list(nlp(input_values_string))
 
     return any(
         [keyword for keyword in list_of_keywords if keyword in split_words])
@@ -100,6 +98,9 @@ def transform_input(input_dict: Mapping[str, Mapping[str, str]]):
                 # | 1      | 1      | 1      | 0      | 0      | 0      | 0      | 0    | 0              | 0        | 1       | 1     | 0            |
                 # +--------+--------+--------+--------+--------+--------+--------+------+----------------+----------+---------+-------+--------------+
     """
+    # Init Spacy NLP en_core_web_sm
+    nlp = spacy.load("en_core_web_sm")
+
     patients = input_dict.keys()
 
     # Init (transformed) One Hot Encoded input array
@@ -109,28 +110,34 @@ def transform_input(input_dict: Mapping[str, Mapping[str, str]]):
         patient_dict = input_dict[patient]
 
         input_array[idx, 0] = get_flag_value(
+            nlp=nlp,
             input_dict={key: patient_dict[key]
                         for key in FLAG_1_KEYS},
             list_of_keywords=FLAG_1_KEYWORDS)
         input_array[idx, 1] = get_flag_value(
-            {key: patient_dict[key]
-             for key in FLAG_2_KEYS},
+            nlp=nlp,
+            input_dict={key: patient_dict[key]
+                        for key in FLAG_2_KEYS},
             list_of_keywords=FLAG_2_KEYWORDS)
         input_array[idx, 2] = get_flag_value(
-            {key: patient_dict[key]
-             for key in FLAG_3_KEYS},
+            nlp=nlp,
+            input_dict={key: patient_dict[key]
+                        for key in FLAG_3_KEYS},
             list_of_keywords=FLAG_3_KEYWORDS)
         input_array[idx, 3] = get_flag_value(
-            {key: patient_dict[key]
-             for key in FLAG_4_KEYS},
+            nlp=nlp,
+            input_dict={key: patient_dict[key]
+                        for key in FLAG_4_KEYS},
             list_of_keywords=FLAG_4_KEYWORDS)
         input_array[idx, 4] = get_flag_value(
-            {key: patient_dict[key]
-             for key in FLAG_5_KEYS},
+            nlp=nlp,
+            input_dict={key: patient_dict[key]
+                        for key in FLAG_5_KEYS},
             list_of_keywords=FLAG_5_KEYWORDS)
         input_array[idx, 5] = get_flag_value(
-            {key: patient_dict[key]
-             for key in FLAG_6_KEYS},
+            nlp=nlp,
+            input_dict={key: patient_dict[key]
+                        for key in FLAG_6_KEYS},
             list_of_keywords=FLAG_6_KEYWORDS)
 
     return input_array.astype(int)
