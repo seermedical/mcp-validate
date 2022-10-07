@@ -106,8 +106,7 @@ def transform_input(input_dict: Mapping[str, Mapping[str, str]]) -> np.ndarray:
     # Init (transformed) One Hot Encoded input array
     input_array = np.zeros(len(input_dict), 13)
 
-    for idx, patient in enumerate(patients):
-        patient_dict = input_dict[patient]
+    for idx, (patient, patient_dict) in enumerate(input_dict.items()):
 
         input_array[idx, 0] = get_flag_value(
             nlp=nlp,
