@@ -17,19 +17,18 @@ QUESTION_7 = 'Describe what happens during your seizures.'
 QUESTION_8 = 'Please describe what you feel right before or at the beginning of a seizure.'
 QUESTION_9 = 'How long do your seizures last?'
 
-FLAG_1_KEYS = ['']
-FLAG_2_KEYS = ['']
-FLAG_3_KEYS = ['']
-FLAG_4_KEYS = ['']
-FLAG_5_KEYS = ['']
-FLAG_6_KEYS = ['']
+FLAG_KEYS_BEFORE = [QUESTION_1, QUESTION_2, QUESTION_3]
+FLAG_KEYS_DURING = [QUESTION_6, QUESTION_7]
+FLAG_KEYS_DURATION = [QUESTION_9]
 
-FLAG_1_KEYWORDS = ['dizzy', 'dizzyness', 'dissy', 'pale', 'faint', 'light']
+FLAG_1_KEYWORDS = ['pale', 'white']
 FLAG_2_KEYWORDS = ['']
-FLAG_3_KEYWORDS = ['']
-FLAG_4_KEYWORDS = ['']
-FLAG_5_KEYWORDS = ['']
-FLAG_6_KEYWORDS = ['']
+FLAG_3_KEYWORDS = ['collapse', 'droop', 'slump']
+FLAG_4_KEYWORDS_MULTI = ['eye', 'close', 'shut']
+FLAG_4_KEYWORDS_FREE = ['7 - 15 minutes', 'more than 15 minutes'
+                        ]  # TODO: check with MCPV team that format is in str
+FLAG_5_KEYWORDS = ['headache', 'migraine']
+FLAG_6_KEYWORDS = ['pain', 'fell', 'fall', 'cough', 'stand']
 
 
 def get_flag_value(nlp: spacy.load, input_dict: Mapping[str, str],
@@ -106,7 +105,8 @@ def transform_input(input_dict: Mapping[str, Mapping[str, str]]) -> np.ndarray:
     # Init (transformed) One Hot Encoded input array
     input_array = np.zeros(len(input_dict), 13)
 
-    for idx, (patient, patient_dict) in enumerate(input_dict.items()):
+    for idx, patient in enumerate(patients):
+        patient_dict = input_dict[patient]
 
         input_array[idx, 0] = get_flag_value(
             nlp=nlp,
