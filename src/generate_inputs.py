@@ -33,7 +33,7 @@ FLAG_6_KEYWORDS = ['']
 
 
 def get_flag_value(nlp: spacy.load, input_dict: Mapping[str, str],
-                   list_of_keywords: Sequence[str]):
+                   list_of_keywords: Sequence[str]) -> bool:
 
     # Return NaN if no answers provided to key questions
     input_values = input_dict.values()
@@ -47,56 +47,56 @@ def get_flag_value(nlp: spacy.load, input_dict: Mapping[str, str],
         [keyword for keyword in list_of_keywords if keyword in split_words])
 
 
-def transform_input(input_dict: Mapping[str, Mapping[str, str]]):
+def transform_input(input_dict: Mapping[str, Mapping[str, str]]) -> np.ndarray:
     """Takes dictionary of patient's responses to survey questions
     and transforms to One Hot Encoded matrix."
 
     Args:
         input_dict (dict): Dictionary where keys represent a patient,
-        enclosing another dictionary of key (question), value (answer) pairs.
-        N.b. If no value (answer), to a key (question), an empty string is expected.
-        Example:
-            {
-                'patient_1': {
-                    'How long do your seizures last?': 'a few seconds',
-                    'Describe what happens during your seizures.': '',
-                    ...
+            enclosing another dictionary of key (question), value (answer) pairs.
+            N.b. If no value (answer), to a key (question), an empty string is expected.
+            Example:
+                {
+                    'patient_1': {
+                        'How long do your seizures last?': 'a few seconds',
+                        'Describe what happens during your seizures.': '',
+                        ...
+                    }
                 }
-            }
 =
     Returns:
         np.ndarray: Input array where rows represent each patient, and columns
-        represent each input (i.e. question). Inputs are as follows:
-            input_1 - Did skin turn pale before event?
-            input_2 - Before event included urination or defacation, AND event included loss of
-                        consciousness
-            input_3 - Event duration was < 10 sec, AND event included loss of awareness and
-                        fall / slump
-            input_4 - Event duration was > 10 min, AND event included eyes closed
-            input_5 - Before event included severe headache
-            input 6 - Before event included standing up OR sit up OR posture change OR coughing
-                        OR pain, AND event included falling
-            input_7 - Has grey matter lesion (via imaging)
-            input_8 - Event included lip smacking OR chewing
-            input_9 - Events are nocturnal-only
-            input_10 - Onset >= 21 y.o.
-            input_11 - Event duration < 20 sec, AND event included staring OR blank OR unresponsive
-                        OR unaware, AND after event did not include confusion
-            input_12 - Before event excluded resting NOR sleeping AND event included jerks
-            input_13 - Before event included waking w/in 1 hr OR jerking AND event included
-                        convulsions on both sides, stiffening, jerks
+            represent each input (i.e. question). Inputs are as follows:
+                input_1 - Did skin turn pale before event?
+                input_2 - Before event included urination or defacation, AND event included loss of
+                            consciousness
+                input_3 - Event duration was < 10 sec, AND event included loss of awareness and
+                            fall / slump
+                input_4 - Event duration was > 10 min, AND event included eyes closed
+                input_5 - Before event included severe headache
+                input 6 - Before event included standing up OR sit up OR posture change OR coughing
+                            OR pain, AND event included falling
+                input_7 - Has grey matter lesion (via imaging)
+                input_8 - Event included lip smacking OR chewing
+                input_9 - Events are nocturnal-only
+                input_10 - Onset >= 21 y.o.
+                input_11 - Event duration < 20 sec, AND event included staring OR blank OR unresponsive
+                            OR unaware, AND after event did not include confusion
+                input_12 - Before event excluded resting NOR sleeping AND event included jerks
+                input_13 - Before event included waking w/in 1 hr OR jerking AND event included
+                            convulsions on both sides, stiffening, jerks
 
-            Elements are represented as NaN = no data, 0 = 'no', or 1 = 'yes'.
-            Example:
-                # +--------+--------+--------+--------+--------+--------+--------+------+----------------+----------+---------+-------+--------------+
-                # | flag_1 | flag_2 | flag_3 | flag_4 | flag_5 | flag_6 | lesion | lips | night_seizures | onset_21 | staring | jerks | tonic_clonic |
-                # +--------+--------+--------+--------+--------+--------+--------+------+----------------+----------+---------+-------+--------------+
-                # | NaN    | NaN    | NaN    | NaN    | NaN    | NaN    | 1      | 0    | 0              | 0        | 0       | 0     | 0            |
-                # +--------+--------+--------+--------+--------+--------+--------+------+----------------+----------+---------+-------+--------------+
-                # | 1      | 1      | 1      | 0      | 0      | 0      | 1      | 0    | 0              | 0        | 0       | 0     | 0            |
-                # +--------+--------+--------+--------+--------+--------+--------+------+----------------+----------+---------+-------+--------------+
-                # | 1      | 1      | 1      | 0      | 0      | 0      | 0      | 0    | 0              | 0        | 1       | 1     | 0            |
-                # +--------+--------+--------+--------+--------+--------+--------+------+----------------+----------+---------+-------+--------------+
+                Elements are represented as NaN = no data, 0 = 'no', or 1 = 'yes'.
+                Example:
+                    # +--------+--------+--------+--------+--------+--------+--------+------+----------------+----------+---------+-------+--------------+
+                    # | flag_1 | flag_2 | flag_3 | flag_4 | flag_5 | flag_6 | lesion | lips | night_seizures | onset_21 | staring | jerks | tonic_clonic |
+                    # +--------+--------+--------+--------+--------+--------+--------+------+----------------+----------+---------+-------+--------------+
+                    # | NaN    | NaN    | NaN    | NaN    | NaN    | NaN    | 1      | 0    | 0              | 0        | 0       | 0     | 0            |
+                    # +--------+--------+--------+--------+--------+--------+--------+------+----------------+----------+---------+-------+--------------+
+                    # | 1      | 1      | 1      | 0      | 0      | 0      | 1      | 0    | 0              | 0        | 0       | 0     | 0            |
+                    # +--------+--------+--------+--------+--------+--------+--------+------+----------------+----------+---------+-------+--------------+
+                    # | 1      | 1      | 1      | 0      | 0      | 0      | 0      | 0    | 0              | 0        | 1       | 1     | 0            |
+                    # +--------+--------+--------+--------+--------+--------+--------+------+----------------+----------+---------+-------+--------------+
     """
     # Init Spacy NLP en_core_web_sm
     nlp = spacy.load("en_core_web_sm")
@@ -141,7 +141,3 @@ def transform_input(input_dict: Mapping[str, Mapping[str, str]]):
             list_of_keywords=FLAG_6_KEYWORDS)
 
     return input_array.astype(int)
-
-
-# Notes: Will need to be more sophisticated than this, e.g. requires
-# an AND for questions involving duration

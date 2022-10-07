@@ -15,7 +15,7 @@ from generate_outputs import get_predicted_output, get_true_output
 
 
 def run(input_data: Mapping[str, Mapping[str, str]],
-        input_billing_codes: Mapping[str, Sequence[str]]):
+        input_billing_codes: Mapping[str, Sequence[str]]) -> None:
 
     # Get input array
     input_array = transform_input(input_data)
