@@ -33,22 +33,29 @@ FLAG_6_KEYWORDS_BEFORE = ['pain', 'cough', 'stand']
 FLAG_6_KEYWORDS_DURING = ['fell', 'fall']
 
 
-def get_flag_value(nlp: spacy.load, patient_dict: Mapping[str, str],
-                   list_of_keys: Sequence[str],
-                   list_of_keywords: Sequence[str]) -> bool:
-    # Filter the patient dict of keys (questions) and values (answers)
-    input_dict = {key: patient_dict[key] for key in list_of_keys}
+class InputFilter:
 
-    # Return NaN if no answers provided to key questions
-    input_values = input_dict.values()
-    if not any(input_values):
-        return np.nan
+    nlp = spacy.load("en_core_web_sm")
 
-    input_values_string = ' '.join(input_values)
-    split_words = list(nlp(input_values_string))
+    def __init__(self, patient_dict):
+        self.patient_dict = patient_dict
 
-    return any(
-        [keyword for keyword in list_of_keywords if keyword in split_words])
+    def get_flag_value(self, list_of_keys: Sequence[str],
+                       list_of_keywords: Sequence[str]) -> bool:
+        # Filter the patient dict of keys (questions) and values (answers)
+        input_dict = {key: self.patient_dict[key] for key in list_of_keys}
+
+        # Return NaN if no answers provided to key questions
+        input_values = input_dict.values()
+        if not any(input_values):
+            return np.nan
+
+        input_values_string = ' '.join(input_values)
+        split_words = list(InputFilter.nlp(input_values_string))
+
+        return any([
+            keyword for keyword in list_of_keywords if keyword in split_words
+        ])
 
 
 def transform_input(input_dict: Mapping[str, Mapping[str, str]]) -> np.ndarray:
@@ -102,60 +109,47 @@ def transform_input(input_dict: Mapping[str, Mapping[str, str]]) -> np.ndarray:
                     # | 1      | 1      | 1      | 0      | 0      | 0      | 0      | 0    | 0              | 0        | 1       | 1     | 0            |
                     # +--------+--------+--------+--------+--------+--------+--------+------+----------------+----------+---------+-------+--------------+
     """
-    # Init Spacy NLP en_core_web_sm
-    nlp = spacy.load("en_core_web_sm")
 
     # Init (transformed) One Hot Encoded input array
     input_array = np.zeros(len(input_dict), 13)
 
     for idx, patient_dict in enumerate(input_dict.values()):
 
+        filter_input = InputFilter(patient_dict=patient_dict)
         # Flag 1: Pale skin before event
-        input_array[idx, 0] = get_flag_value(nlp=nlp,
-                                             patient_dict=patient_dict,
-                                             list_of_keys=FLAG_KEYS_BEFORE,
-                                             list_of_keywords=FLAG_1_KEYWORDS)
+        input_array[idx, 0] = filter_input.get_flag_value(
+            list_of_keys=FLAG_KEYS_BEFORE, list_of_keywords=FLAG_1_KEYWORDS)
 
         # Flag 2:
-        input_array[idx, 1] = get_flag_value(nlp=nlp,
-                                             patient_dict=patient_dict,
-                                             list_of_keys=FLAG_KEYS_DURING,
-                                             list_of_keywords=FLAG_2_KEYWORDS)
+        input_array[idx, 1] = filter_input.get_flag_value(
+            list_of_keys=FLAG_KEYS_DURING, list_of_keywords=FLAG_2_KEYWORDS)
 
         # Flag 3: Fall or slump with loss of awareness
         # during event
-        input_array[idx, 2] = get_flag_value(nlp=nlp,
-                                             patient_dict=patient_dict,
-                                             list_of_keys=FLAG_KEYS_DURING,
-                                             list_of_keywords=FLAG_3_KEYWORDS)
+        input_array[idx, 2] = filter_input.get_flag_value(
+            list_of_keys=FLAG_KEYS_DURING, list_of_keywords=FLAG_3_KEYWORDS)
 
         # Flag 4: Seizure with eyes closed lasting longer than 10 minutes
         input_array[idx, 3] = all(
-            get_flag_value(nlp=nlp,
-                           patient_dict=patient_dict,
-                           list_of_keys=FLAG_KEYS_DURING,
-                           list_of_keywords=FLAG_4_KEYWORDS_DURING),
-            get_flag_value(nlp=nlp,
-                           patient_dict=patient_dict,
-                           list_of_keys=FLAG_KEYS_DURATION,
-                           list_of_keywords=FLAG_4_KEYWORDS_DURATION))
+            filter_input.get_flag_value(
+                list_of_keys=FLAG_KEYS_DURING,
+                list_of_keywords=FLAG_4_KEYWORDS_DURING),
+            filter_input.get_flag_value(
+                list_of_keys=FLAG_KEYS_DURATION,
+                list_of_keywords=FLAG_4_KEYWORDS_DURATION))
 
         # Flag 5: Severe preictal headache
-        input_array[idx, 4] = get_flag_value(nlp=nlp,
-                                             patient_dict=patient_dict,
-                                             list_of_keys=FLAG_KEYS_BEFORE,
-                                             list_of_keywords=FLAG_5_KEYWORDS)
+        input_array[idx, 4] = filter_input.get_flag_value(
+            list_of_keys=FLAG_KEYS_BEFORE, list_of_keywords=FLAG_5_KEYWORDS)
 
         # Flag 6: Fall after posture change, standing, coughing, or pain
         input_array[idx, 5] = all(
-            get_flag_value(nlp=nlp,
-                           patient_dict=patient_dict,
-                           list_of_keys=FLAG_KEYS_BEFORE,
-                           list_of_keywords=FLAG_6_KEYWORDS_BEFORE),
-            get_flag_value(nlp=nlp,
-                           patient_dict=patient_dict,
-                           list_of_keys=FLAG_KEYS_DURING,
-                           list_of_keywords=FLAG_6_KEYWORDS_DURING))
+            filter_input.get_flag_value(
+                list_of_keys=FLAG_KEYS_BEFORE,
+                list_of_keywords=FLAG_6_KEYWORDS_BEFORE),
+            filter_input.get_flag_value(
+                list_of_keys=FLAG_KEYS_DURING,
+                list_of_keywords=FLAG_6_KEYWORDS_DURING))
 
     input_array = input_array.astype(int)
 
