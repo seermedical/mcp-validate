@@ -24,11 +24,13 @@ FLAG_KEYS_DURATION = [QUESTION_9]
 FLAG_1_KEYWORDS = ['pale', 'white']
 FLAG_2_KEYWORDS = ['']
 FLAG_3_KEYWORDS = ['collapse', 'droop', 'slump']
-FLAG_4_KEYWORDS_MULTI = ['eye', 'close', 'shut']
-FLAG_4_KEYWORDS_FREE = ['7 - 15 minutes', 'more than 15 minutes'
-                        ]  # TODO: check with MCPV team that format is in str
+FLAG_4_KEYWORDS_DURING = ['eye', 'close', 'shut']
+FLAG_4_KEYWORDS_DURATION = [
+    '7 - 15 minutes', 'more than 15 minutes'
+]  # TODO: check with MCPV team that format is in str
 FLAG_5_KEYWORDS = ['headache', 'migraine']
-FLAG_6_KEYWORDS = ['pain', 'fell', 'fall', 'cough', 'stand']
+FLAG_6_KEYWORDS_BEFORE = ['pain', 'cough', 'stand']
+FLAG_6_KEYWORDS_DURING = ['fell', 'fall']
 
 
 def get_flag_value(nlp: spacy.load, input_dict: Mapping[str, str],
@@ -108,35 +110,65 @@ def transform_input(input_dict: Mapping[str, Mapping[str, str]]) -> np.ndarray:
     for idx, patient in enumerate(patients):
         patient_dict = input_dict[patient]
 
+        # Flag 1: Pale skin before event
         input_array[idx, 0] = get_flag_value(
             nlp=nlp,
             input_dict={key: patient_dict[key]
-                        for key in FLAG_1_KEYS},
+                        for key in FLAG_KEYS_BEFORE},
             list_of_keywords=FLAG_1_KEYWORDS)
+
+        # Flag 2:
         input_array[idx, 1] = get_flag_value(
             nlp=nlp,
             input_dict={key: patient_dict[key]
-                        for key in FLAG_2_KEYS},
+                        for key in FLAG_KEYS_DURING},
             list_of_keywords=FLAG_2_KEYWORDS)
+
+        # Flag 3: Fall or slump with loss of awareness
+        # during event
         input_array[idx, 2] = get_flag_value(
             nlp=nlp,
             input_dict={key: patient_dict[key]
-                        for key in FLAG_3_KEYS},
+                        for key in FLAG_KEYS_DURING},
             list_of_keywords=FLAG_3_KEYWORDS)
-        input_array[idx, 3] = get_flag_value(
-            nlp=nlp,
-            input_dict={key: patient_dict[key]
-                        for key in FLAG_4_KEYS},
-            list_of_keywords=FLAG_4_KEYWORDS)
+
+        # Flag 4: Seizure with eyes closed lasting longer than 10 minutes
+        input_array[idx, 3] = all(
+            get_flag_value(nlp=nlp,
+                           input_dict={
+                               key: patient_dict[key]
+                               for key in FLAG_KEYS_DURING
+                           },
+                           list_of_keywords=FLAG_4_KEYWORDS_DURING),
+            get_flag_value(nlp=nlp,
+                           input_dict={
+                               key: patient_dict[key]
+                               for key in FLAG_KEYS_DURATION
+                           },
+                           list_of_keywords=FLAG_4_KEYWORDS_DURATION))
+
+        # Flag 5: Severe preictal headache
         input_array[idx, 4] = get_flag_value(
             nlp=nlp,
             input_dict={key: patient_dict[key]
-                        for key in FLAG_5_KEYS},
+                        for key in FLAG_KEYS_BEFORE},
             list_of_keywords=FLAG_5_KEYWORDS)
-        input_array[idx, 5] = get_flag_value(
-            nlp=nlp,
-            input_dict={key: patient_dict[key]
-                        for key in FLAG_6_KEYS},
-            list_of_keywords=FLAG_6_KEYWORDS)
 
-    return input_array.astype(int)
+        # Flag 6: Fall after posture change, standing, coughing, or pain
+        input_array[idx, 5] = all(
+            get_flag_value(nlp=nlp,
+                           input_dict={
+                               key: patient_dict[key]
+                               for key in FLAG_KEYS_BEFORE
+                           },
+                           list_of_keywords=FLAG_6_KEYWORDS_BEFORE),
+            get_flag_value(nlp=nlp,
+                           input_dict={
+                               key: patient_dict[key]
+                               for key in FLAG_KEYS_DURING
+                           },
+                           list_of_keywords=FLAG_6_KEYWORDS_DURING))
+
+    input_array = input_array.astype(int)
+
+    return input_array
