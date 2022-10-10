@@ -29,7 +29,7 @@ FLAG_4_KEYWORDS_DURATION = [
 ]  # TODO: check with MCPV team that format is in str
 FLAG_5_KEYWORDS = ['headache', 'migraine']
 FLAG_6_KEYWORDS_BEFORE = ['pain', 'cough', 'stand']
-FLAG_6_KEYWORDS_DURING = ['fell', 'fall']
+FLAG_6_KEYWORDS_DURING = ['fell', 'fall', 'collapse']
 
 
 class InputFilter:
@@ -110,7 +110,7 @@ def transform_input(input_dict: Mapping[str, Mapping[str, str]]) -> np.ndarray:
     """
 
     # Init (transformed) One Hot Encoded input array
-    input_array = np.zeros(len(input_dict), 13)
+    input_array = np.zeros([len(input_dict), 13])
 
     for idx, patient_dict in enumerate(input_dict.values()):
 
@@ -129,27 +129,29 @@ def transform_input(input_dict: Mapping[str, Mapping[str, str]]) -> np.ndarray:
             list_of_keys=FLAG_KEYS_DURING, list_of_keywords=FLAG_3_KEYWORDS)
 
         # Flag 4: Seizure with eyes closed lasting longer than 10 minutes
-        input_array[idx, 3] = all(
+        input_array[idx, 3] = all([
             filter_input.get_flag_value(
                 list_of_keys=FLAG_KEYS_DURING,
                 list_of_keywords=FLAG_4_KEYWORDS_DURING),
             filter_input.get_flag_value(
                 list_of_keys=FLAG_KEYS_DURATION,
-                list_of_keywords=FLAG_4_KEYWORDS_DURATION))
+                list_of_keywords=FLAG_4_KEYWORDS_DURATION)
+        ])
 
         # Flag 5: Severe preictal headache
         input_array[idx, 4] = filter_input.get_flag_value(
             list_of_keys=FLAG_KEYS_BEFORE, list_of_keywords=FLAG_5_KEYWORDS)
 
         # Flag 6: Fall after posture change, standing, coughing, or pain
-        input_array[idx, 5] = all(
+        input_array[idx, 5] = all([
             filter_input.get_flag_value(
                 list_of_keys=FLAG_KEYS_BEFORE,
                 list_of_keywords=FLAG_6_KEYWORDS_BEFORE),
             filter_input.get_flag_value(
                 list_of_keys=FLAG_KEYS_DURING,
-                list_of_keywords=FLAG_6_KEYWORDS_DURING))
+                list_of_keywords=FLAG_6_KEYWORDS_DURING)
+        ])
 
     input_array = input_array.astype(float)
-
+    print(input_array)
     return input_array
