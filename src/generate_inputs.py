@@ -2,7 +2,7 @@
 Script of functions to generate predicted and true output matrices.
 """
 
-from typing import Mapping, Sequence
+from typing import List, Mapping, Optional
 
 import numpy as np
 import spacy
@@ -39,22 +39,22 @@ class InputFilter:
     def __init__(self, patient_dict):
         self.patient_dict = patient_dict
 
-    def get_flag_value(self, list_of_keys: Sequence[str],
-                       list_of_keywords: Sequence[str]) -> bool:
+    def get_flag_value(self, list_of_keys: List[str],
+                       list_of_keywords: List[str]) -> Optional[bool]:
         # Filter the patient dict of keys (questions) and values (answers)
         input_dict = {key: self.patient_dict[key] for key in list_of_keys}
 
         # Return NaN if no answers provided to key questions
         input_values = input_dict.values()
         if not any(input_values):
-            return np.nan
+            return None
 
-        input_values_string = ' '.join(input_values)
-        split_words = list(InputFilter.nlp(input_values_string))
+        input_sentences = ' '.join(input_values)
+        split_words_doc = list(InputFilter.nlp(input_sentences))
+        split_words_str = [token.text for token in split_words_doc]
 
-        return any([
-            keyword for keyword in list_of_keywords if keyword in split_words
-        ])
+        return any(keyword for keyword in list_of_keywords
+                   if keyword in split_words_str)
 
 
 def transform_input(input_dict: Mapping[str, Mapping[str, str]]) -> np.ndarray:
