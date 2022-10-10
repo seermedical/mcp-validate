@@ -14,12 +14,11 @@ QUESTION_4 = 'Please specify other injuries.'
 QUESTION_5 = 'What injuries have you experienced during a seizure?'
 QUESTION_6 = 'Please specify other symptoms.'
 QUESTION_7 = 'Describe what happens during your seizures.'
-QUESTION_8 = 'Please describe what you feel right before or at the beginning of a seizure.'
-QUESTION_9 = 'How long do your seizures last?'
+QUESTION_8 = 'How long do your seizures last?'
 
 FLAG_KEYS_BEFORE = [QUESTION_1, QUESTION_2, QUESTION_3]
 FLAG_KEYS_DURING = [QUESTION_6, QUESTION_7]
-FLAG_KEYS_DURATION = [QUESTION_9]
+FLAG_KEYS_DURATION = [QUESTION_8]
 
 FLAG_1_KEYWORDS = ['pale', 'white']
 FLAG_2_KEYWORDS = ['']
