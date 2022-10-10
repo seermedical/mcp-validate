@@ -153,5 +153,4 @@ def transform_input(input_dict: Mapping[str, Mapping[str, str]]) -> np.ndarray:
         ])
 
     input_array = input_array.astype(float)
-    print(input_array)
     return input_array
