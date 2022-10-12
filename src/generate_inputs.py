@@ -7,18 +7,16 @@ from typing import List, Mapping, Optional
 import numpy as np
 import spacy
 
-QUESTION_1 = 'What other things do you experience right before or at the beginning of a seizure?'
-QUESTION_2 = 'Please describe what you feel right before or at the beginning of a seizure.'
-QUESTION_3 = 'Please specify other warning.'
-QUESTION_4 = 'Please specify other injuries.'
-QUESTION_5 = 'What injuries have you experienced during a seizure?'
-QUESTION_6 = 'Please specify other symptoms.'
-QUESTION_7 = 'Describe what happens during your seizures.'
-QUESTION_8 = 'How long do your seizures last?'
-
-FLAG_KEYS_BEFORE = [QUESTION_1, QUESTION_2, QUESTION_3]
-FLAG_KEYS_DURING = [QUESTION_6, QUESTION_7]
-FLAG_KEYS_DURATION = [QUESTION_8]
+BEFORE_EVENT_QUESTIONS = [
+    'What other things do you experience right before or at the beginning of a seizure?',
+    'Please describe what you feel right before or at the beginning of a seizure.',
+    'Please specify other warning.'
+]
+DURING_EVENT_QUESTIONS = [
+    'Please specify other symptoms.',
+    'Describe what happens during your seizures.'
+]
+DURATION_QUESTIONS = ['How long do your seizures last?']
 
 FLAG_1_KEYWORDS = ['pale', 'white']
 FLAG_2_KEYWORDS = ['']
@@ -117,40 +115,44 @@ def transform_input(input_dict: Mapping[str, Mapping[str, str]]) -> np.ndarray:
         filter_input = InputFilter(patient_dict=patient_dict)
         # Flag 1: Pale skin before event
         input_array[idx, 0] = filter_input.get_flag_value(
-            list_of_keys=FLAG_KEYS_BEFORE, list_of_keywords=FLAG_1_KEYWORDS)
+            list_of_keys=BEFORE_EVENT_QUESTIONS,
+            list_of_keywords=FLAG_1_KEYWORDS)
 
         # Flag 2:
         input_array[idx, 1] = filter_input.get_flag_value(
-            list_of_keys=FLAG_KEYS_DURING, list_of_keywords=FLAG_2_KEYWORDS)
+            list_of_keys=DURING_EVENT_QUESTIONS,
+            list_of_keywords=FLAG_2_KEYWORDS)
 
         # Flag 3: Fall or slump with loss of awareness
         # during event
         input_array[idx, 2] = filter_input.get_flag_value(
-            list_of_keys=FLAG_KEYS_DURING, list_of_keywords=FLAG_3_KEYWORDS)
+            list_of_keys=DURING_EVENT_QUESTIONS,
+            list_of_keywords=FLAG_3_KEYWORDS)
 
         # Flag 4: Seizure with eyes closed lasting longer than 10 minutes
         input_array[idx, 3] = all([
             filter_input.get_flag_value(
-                list_of_keys=FLAG_KEYS_DURING,
+                list_of_keys=DURING_EVENT_QUESTIONS,
                 list_of_keywords=FLAG_4_KEYWORDS_DURING),
             filter_input.get_flag_value(
-                list_of_keys=FLAG_KEYS_DURATION,
-                list_of_keywords=FLAG_4_KEYWORDS_DURATION)
-        ])
+                list_of_keys=DURATION_QUESTIONS,
+                list_of_keywords=FLAG_4_KEYWORDS_DURATION)])
 
         # Flag 5: Severe preictal headache
         input_array[idx, 4] = filter_input.get_flag_value(
-            list_of_keys=FLAG_KEYS_BEFORE, list_of_keywords=FLAG_5_KEYWORDS)
+            list_of_keys=BEFORE_EVENT_QUESTIONS,
+            list_of_keywords=FLAG_5_KEYWORDS)
 
         # Flag 6: Fall after posture change, standing, coughing, or pain
         input_array[idx, 5] = all([
             filter_input.get_flag_value(
-                list_of_keys=FLAG_KEYS_BEFORE,
+                list_of_keys=BEFORE_EVENT_QUESTIONS,
                 list_of_keywords=FLAG_6_KEYWORDS_BEFORE),
             filter_input.get_flag_value(
-                list_of_keys=FLAG_KEYS_DURING,
-                list_of_keywords=FLAG_6_KEYWORDS_DURING)
-        ])
+                list_of_keys=DURING_EVENT_QUESTIONS,
+                list_of_keywords=FLAG_6_KEYWORDS_DURING))
+
+    input_array = input_array.astype(int)
 
     input_array = input_array.astype(float)
     return input_array
