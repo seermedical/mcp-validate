@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from src.generate_inputs import InputFilter, transform_input, FLAG_KEYS_BEFORE, FLAG_6_KEYWORDS_BEFORE
+from src.generate_inputs import InputFilter, transform_input, BEFORE_EVENT_QUESTIONS, FLAG_6_KEYWORDS_BEFORE
 
 
 @pytest.fixture
@@ -107,7 +107,7 @@ class TestGetInputValues:
     def test_get_input_values(self, mock_patient_dict, expected_boolean):
         input_filter = InputFilter(patient_dict=mock_patient_dict)
         result = input_filter.get_flag_value(
-            list_of_keys=FLAG_KEYS_BEFORE,
+            list_of_keys=BEFORE_EVENT_QUESTIONS,
             list_of_keywords=FLAG_6_KEYWORDS_BEFORE)
 
         assert result == expected_boolean
