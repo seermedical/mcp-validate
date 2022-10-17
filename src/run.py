@@ -10,8 +10,8 @@ Authors: Dominique Eden & Pip Karoly
 
 from typing import Mapping, Sequence
 
-from generate_inputs import transform_input
-from generate_outputs import get_predicted_output, get_true_output
+from src.generate_inputs import transform_input
+from src.generate_outputs import get_predicted_output, get_true_output
 
 
 def run(input_data: Mapping[str, Mapping[str, str]],
