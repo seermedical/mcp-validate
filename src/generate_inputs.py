@@ -18,14 +18,15 @@ DURING_EVENT_QUESTIONS = [
 ]
 DURATION_QUESTIONS = ['How long do your seizures last?']
 
-FLAG_1_KEYWORDS = ['pale', 'white']
+FLAG_1_KEYWORDS = ['pale', 'white', 'dizzy',
+                   'dissy']  # TODO: add light + head, vertigo multichoice
 FLAG_2_KEYWORDS = ['']
 FLAG_3_KEYWORDS = ['collapse', 'droop', 'slump']
 FLAG_4_KEYWORDS_DURING = ['eye', 'close', 'shut']
 FLAG_4_KEYWORDS_DURATION = [
     '7 - 15 minutes', 'more than 15 minutes'
 ]  # TODO: check with MCPV team that format is in str
-FLAG_5_KEYWORDS = ['headache', 'migraine']
+FLAG_5_KEYWORDS = ['headache', 'migraine']  # TODO: head + ache
 FLAG_6_KEYWORDS_BEFORE = ['pain', 'cough', 'stand']
 FLAG_6_KEYWORDS_DURING = ['fell', 'fall']
 
@@ -130,7 +131,7 @@ def transform_input(input_dict: Mapping[str, Mapping[str, str]]) -> np.ndarray:
             list_of_keywords=FLAG_3_KEYWORDS)
 
         # Flag 4: Seizure with eyes closed lasting longer than 10 minutes
-        input_array[idx, 3] = all(
+        input_array[idx, 3] = all([
             filter_input.get_flag_value(
                 list_of_keys=DURING_EVENT_QUESTIONS,
                 list_of_keywords=FLAG_4_KEYWORDS_DURING),
@@ -145,7 +146,7 @@ def transform_input(input_dict: Mapping[str, Mapping[str, str]]) -> np.ndarray:
             list_of_keywords=FLAG_5_KEYWORDS)
 
         # Flag 6: Fall after posture change, standing, coughing, or pain
-        input_array[idx, 5] = all(
+        input_array[idx, 5] = all([
             filter_input.get_flag_value(
                 list_of_keys=BEFORE_EVENT_QUESTIONS,
                 list_of_keywords=FLAG_6_KEYWORDS_BEFORE),
