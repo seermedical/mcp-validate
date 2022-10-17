@@ -154,7 +154,5 @@ def transform_input(input_dict: Mapping[str, Mapping[str, str]]) -> np.ndarray:
                 list_of_keywords=FLAG_6_KEYWORDS_DURING)
         ])
 
-    input_array = input_array.astype(int)
-
     input_array = input_array.astype(float)
     return input_array
