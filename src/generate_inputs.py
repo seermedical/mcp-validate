@@ -132,6 +132,10 @@ def transform_input(input_dict: Mapping[str, Mapping[str, str]]) -> np.ndarray:
                                         multiple_words_to_match=True)
         ])
 
+        # Flag 2: Loss of consciousness immediately after urination
+        # or defacation
+        # Removed due to lack of data
+
         # Flag 3: Fall or slump with loss of awareness
         # during event
         input_array[idx,
