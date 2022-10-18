@@ -114,12 +114,12 @@ def get_predicted_output(input_array: np.ndarray) -> np.ndarray:
         # Block 1
         # Epilepsy vs Non-Epilepsy
         if has_undefined_values(input_block_1, threshold=3):
-            continue
+            predicted_output[idx, 0] = 1  # indeterminate
 
         if has_positive_values(input_block_1):
-            predicted_output[idx, 0] = 1  # non-epilepsy
+            predicted_output[idx, 1] = 1  # non-epilepsy
         else:
-            predicted_output[idx, 1] = 1  # epilepsy
+            predicted_output[idx, 2] = 1  # epilepsy
 
         # Block 2
         # Focal vs Generalised
@@ -127,7 +127,7 @@ def get_predicted_output(input_array: np.ndarray) -> np.ndarray:
             continue
 
         if has_positive_values(row[9]) or has_positive_values(input_block_2):
-            predicted_output[idx, 2] = 1  # focal diagnosis
+            predicted_output[idx, 3] = 1  # focal diagnosis
             continue
 
         # Block 3
@@ -136,22 +136,10 @@ def get_predicted_output(input_array: np.ndarray) -> np.ndarray:
         if has_undefined_values(input_block_3, threshold=2):
             continue
 
-        if not has_positive_values(input_block_3):
-            predicted_output[idx, 7] = 1  # unknown onset
-            continue
-
-        # TODO: remove generalised subtypes
-        if has_positive_values(row[10]):
-            predicted_output[idx, 4] = 1  # absence
-
-        if has_positive_values(row[11]):
-            predicted_output[idx, 5] = 1  # myoclonic
-
-        if has_positive_values(row[12]):
-            predicted_output[idx, 6] = 1  # gtcs
-
-        if has_positive_values(predicted_output[4:7]):
-            predicted_output[idx, 3] = 1  # generalised
+        if has_positive_values(input_block_3):
+            predicted_output[idx, 4] = 1  # generalised
+        else:
+            predicted_output[idx, 5] = 1  # unknown onset
 
     return predicted_output
 
