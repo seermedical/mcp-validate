@@ -128,8 +128,17 @@ def transform_input(input_dict: Mapping[str, Mapping[str, str]]) -> np.ndarray:
         )
 
         # Flag 2:
-        input_array[idx, 1] = filter_input.get_flag_value(
-            list_of_keys=DURING_EVENT_QUESTIONS, list_of_keywords=FLAG_2_KEYWORDS
+        input_array[idx, 1] = all(
+            [
+                filter_input.get_flag_value(
+                    list_of_keys=BEFORE_EVENT_QUESTIONS,
+                    list_of_keywords=FLAG_2_KEYWORDS_BEFORE,
+                ),
+                filter_input.get_flag_value(
+                    list_of_keys=DURING_EVENT_QUESTIONS,
+                    list_of_keywords=FLAG_2_KEYWORDS_DURING,
+                ),
+            ]
         )
 
         # Flag 3: Fall or slump with loss of awareness
