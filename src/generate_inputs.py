@@ -122,7 +122,12 @@ def transform_input(input_dict: Mapping[str, Mapping[str, str]]) -> np.ndarray:
 
     for idx, patient_dict in enumerate(input_dict.values()):
 
+        # Remove patient if no responses
+        if len(patient_dict.values()) == 0:
+            continue
+
         filter_input = InputFilter(patient_dict=patient_dict)
+
         # Flag 1: Pale skin before event
         input_array[idx, 0] = any([
             filter_input.get_flag_value(BEFORE_EVENT_QUESTIONS,
