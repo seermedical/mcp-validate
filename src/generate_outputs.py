@@ -146,7 +146,7 @@ def get_predicted_output(input_array: np.ndarray) -> np.ndarray:
 
 def get_true_output(
         input_billing_codes: Mapping[str, Sequence[str]]) -> np.ndarray:
-    """Defines diagnosis for each patient based on a set of billing codes.
+    """Defines diagnosis class for each patient based on the patient's billing code/s.
 
     Args:
         input_billing_codes: Dictionary of patients' billing codes.
