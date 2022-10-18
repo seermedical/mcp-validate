@@ -11,6 +11,7 @@ BEFORE_EVENT_QUESTIONS = [
     'What other things do you experience right before or at the beginning of a seizure?',
     'Please describe what you feel right before or at the beginning of a seizure.',
     'Please specify other warning.'
+    'Which warnings do you get before you have a seizure?'
 ]
 DURING_EVENT_QUESTIONS = [
     'Please specify other symptoms.',
@@ -18,14 +19,16 @@ DURING_EVENT_QUESTIONS = [
 ]
 DURATION_QUESTIONS = ['How long do your seizures last?']
 
-FLAG_1_KEYWORDS = ['pale', 'white', 'dizzy',
-                   'dissy']  # TODO: add light + head, vertigo multichoice
+FLAG_1_KEYWORDS = ['pale', 'white', 'dizzy', 'dissy', 'vertigo']
+FLAG_1_KEYWORDS_MULTIPLE = ['light', 'head']
+
 FLAG_3_KEYWORDS = ['collapse', 'droop', 'slump']
 FLAG_4_KEYWORDS_DURING = ['eye', 'close', 'shut']
 FLAG_4_KEYWORDS_DURATION = [
     '7 - 15 minutes', 'more than 15 minutes'
 ]  # TODO: check with MCPV team that format is in str
-FLAG_5_KEYWORDS = ['headache', 'migraine']  # TODO: add head + ache
+FLAG_5_KEYWORDS = ['headache', 'migraine']
+FLAG_5_KEYWORDS_MULTIPLE = ['head', 'ache']
 FLAG_6_KEYWORDS_BEFORE = ['pain', 'cough', 'stand']
 FLAG_6_KEYWORDS_DURING = ['fell', 'fall']
 
@@ -37,8 +40,11 @@ class InputFilter:
     def __init__(self, patient_dict):
         self.patient_dict = patient_dict
 
-    def get_flag_value(self, list_of_keys: List[str],
-                       list_of_keywords: List[str]) -> Optional[bool]:
+    def get_flag_value(
+            self,
+            list_of_keys: List[str],
+            list_of_keywords: List[str],
+            multiple_words_to_match: bool = False) -> Optional[bool]:
         # Filter the patient dict of keys (questions) and values (answers)
         input_dict = {key: self.patient_dict[key] for key in list_of_keys}
 
@@ -51,8 +57,12 @@ class InputFilter:
         split_words_doc = list(self.nlp(input_sentences))
         split_words_str = set([token.text for token in split_words_doc])
 
-        return any(keyword for keyword in list_of_keywords
-                   if keyword in split_words_str)
+        if not multiple_words_to_match:
+            return any(keyword for keyword in list_of_keywords
+                       if keyword in split_words_str)
+        else:
+            return all(keyword for keyword in list_of_keywords
+                       if keyword in split_words_str)
 
 
 def transform_input(input_dict: Mapping[str, Mapping[str, str]]) -> np.ndarray:
@@ -114,9 +124,14 @@ def transform_input(input_dict: Mapping[str, Mapping[str, str]]) -> np.ndarray:
 
         filter_input = InputFilter(patient_dict=patient_dict)
         # Flag 1: Pale skin before event
-        input_array[idx, 0] = filter_input.get_flag_value(
-            list_of_keys=BEFORE_EVENT_QUESTIONS,
-            list_of_keywords=FLAG_1_KEYWORDS)
+        input_array[idx, 0] = any([
+            filter_input.get_flag_value(list_of_keys=BEFORE_EVENT_QUESTIONS,
+                                        list_of_keywords=FLAG_1_KEYWORDS),
+            filter_input.get_flag_value(
+                list_of_keys=BEFORE_EVENT_QUESTIONS,
+                list_of_keywords=FLAG_1_KEYWORDS_MULTIPLE,
+                multiple_words_to_match=True)
+        ])
 
         # Flag 3: Fall or slump with loss of awareness
         # during event
@@ -135,9 +150,14 @@ def transform_input(input_dict: Mapping[str, Mapping[str, str]]) -> np.ndarray:
         ])
 
         # Flag 5: Severe preictal headache
-        input_array[idx, 4] = filter_input.get_flag_value(
-            list_of_keys=BEFORE_EVENT_QUESTIONS,
-            list_of_keywords=FLAG_5_KEYWORDS)
+        input_array[idx, 4] = any([
+            filter_input.get_flag_value(list_of_keys=BEFORE_EVENT_QUESTIONS,
+                                        list_of_keywords=FLAG_5_KEYWORDS),
+            filter_input.get_flag_value(
+                list_of_keys=BEFORE_EVENT_QUESTIONS,
+                list_of_keywords=FLAG_5_KEYWORDS_MULTIPLE,
+                multiple_words_to_match=True)
+        ])
 
         # Flag 6: Fall after posture change, standing, coughing, or pain
         input_array[idx, 5] = all([
