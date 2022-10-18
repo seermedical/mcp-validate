@@ -127,7 +127,8 @@ def transform_input(input_dict: Mapping[str, Mapping[str, str]]) -> np.ndarray:
             list_of_keys=BEFORE_EVENT_QUESTIONS, list_of_keywords=FLAG_1_KEYWORDS
         )
 
-        # Flag 2:
+        # Flag 2: Loss of consciousness immediately after urination or
+        # defecation
         input_array[idx, 1] = all(
             [
                 filter_input.get_flag_value(
