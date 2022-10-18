@@ -46,7 +46,7 @@ def set_diagnosis(list_of_billing_codes: Sequence[str]) -> np.ndarray:
 
 
 def has_undefined_values(input_array: np.ndarray, threshold: int = 3) -> bool:
-    """Checks if an array has enough valid data given a threshold.
+    """Counts if number of NaNs in a given array is above a given threshold.
 
     Returns:
         bool: Returns True if n of NaN elements exceeds threshold, and False if
