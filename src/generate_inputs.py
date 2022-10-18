@@ -25,7 +25,7 @@ FLAG_4_KEYWORDS_DURING = ['eye', 'close', 'shut']
 FLAG_4_KEYWORDS_DURATION = [
     '7 - 15 minutes', 'more than 15 minutes'
 ]  # TODO: check with MCPV team that format is in str
-FLAG_5_KEYWORDS = ['headache', 'migraine']  # TODO: head + ache
+FLAG_5_KEYWORDS = ['headache', 'migraine']  # TODO: add head + ache
 FLAG_6_KEYWORDS_BEFORE = ['pain', 'cough', 'stand']
 FLAG_6_KEYWORDS_DURING = ['fell', 'fall']
 
