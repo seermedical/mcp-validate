@@ -21,7 +21,7 @@ DURATION_QUESTIONS = ['How long do your seizures last?']
 
 FLAG_1_KEYWORDS = ['pale', 'white', 'dizzy', 'dissy', 'vertigo']
 FLAG_1_KEYWORDS_MULTIPLE = ['light', 'head']
-
+FLAG_2_KEYWORDS = ['']
 FLAG_3_KEYWORDS = ['collapse', 'droop', 'slump']
 FLAG_4_KEYWORDS_DURING = ['eye', 'close', 'shut']
 FLAG_4_KEYWORDS_DURATION = [
@@ -87,7 +87,7 @@ def transform_input(input_dict: Mapping[str, Mapping[str, str]]) -> np.ndarray:
             represent each input (i.e. question). Inputs are as follows:
                 input_1 - Did skin turn pale before event?
                 input_2 - Before event included urination or defacation, AND event included loss of
-                            consciousness. N.b. Removed due to lack of data.
+                            consciousness.
                 input_3 - Event duration was < 10 sec, AND event included loss of awareness and
                             fall / slump
                 input_4 - Event duration was > 10 min, AND event included eyes closed
@@ -106,15 +106,15 @@ def transform_input(input_dict: Mapping[str, Mapping[str, str]]) -> np.ndarray:
 
                 Elements are represented as NaN = no data, 0 = 'no', or 1 = 'yes'.
                 Example:
-                    # +--------+--------+--------+--------+--------+--------+------+----------------+----------+---------+-------+--------------+
-                    # | flag_1 | flag_3 | flag_4 | flag_5 | flag_6 | lesion | lips | night_seizures | onset_21 | staring | jerks | tonic_clonic |
-                    # +--------+--------+--------+--------+--------+--------+------+----------------+----------+---------+-------+--------------+
-                    # | NaN    | NaN    | NaN    | NaN    | NaN    | 1      | 0    | 0              | 0        | 0       | 0     | 0            |
-                    # +--------+--------+--------+--------+--------+--------+------+----------------+----------+---------+-------+--------------+
-                    # | 1      | 1      | 0      | 0      | 0      | 1      | 0    | 0              | 0        | 0       | 0     | 0            |
-                    # +--------+--------+--------+--------+--------+--------+------+----------------+----------+---------+-------+--------------+
-                    # | 1      | 1      | 0      | 0      | 0      | 0      | 0    | 0              | 0        | 1       | 1     | 0            |
-                    # +--------+--------+--------+--------+--------+--------+------+----------------+----------+---------+-------+--------------+
+                    # +--------+--------+--------+--------+--------+--------+--------+------+----------------+----------+---------+-------+--------------+
+                    # | flag_1 | flag_2 | flag_3 | flag_4 | flag_5 | flag_6 | lesion | lips | night_seizures | onset_21 | staring | jerks | tonic_clonic |
+                    # +--------+--------+--------+--------+--------+--------+--------+------+----------------+----------+---------+-------+--------------+
+                    # | NaN    | NaN    | NaN    | NaN    | NaN    | NaN    | 1      | 0    | 0              | 0        | 0       | 0     | 0            |
+                    # +--------+--------+--------+--------+--------+--------+--------+------+----------------+----------+---------+-------+--------------+
+                    # | 1      | 1      | 1      | 0      | 0      | 0      | 1      | 0    | 0              | 0        | 0       | 0     | 0            |
+                    # +--------+--------+--------+--------+--------+--------+--------+------+----------------+----------+---------+-------+--------------+
+                    # | 1      | 1      | 1      | 0      | 0      | 0      | 0      | 0    | 0              | 0        | 1       | 1     | 0            |
+                    # +--------+--------+--------+--------+--------+--------+--------+------+----------------+----------+---------+-------+--------------+
     """
 
     # Init (transformed) One Hot Encoded input array
@@ -137,9 +137,10 @@ def transform_input(input_dict: Mapping[str, Mapping[str, str]]) -> np.ndarray:
                                         multiple_words_to_match=True)
         ])
 
-        # Flag 2: Loss of consciousness immediately after urination
-        # or defacation
-        # Removed due to lack of data
+        # Flag 2:
+        input_array[idx, 1] = filter_input.get_flag_value(
+            list_of_keys=DURING_EVENT_QUESTIONS,
+            list_of_keywords=FLAG_2_KEYWORDS)
 
         # Flag 3: Fall or slump with loss of awareness
         # during event
