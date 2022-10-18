@@ -137,10 +137,11 @@ def transform_input(input_dict: Mapping[str, Mapping[str, str]]) -> np.ndarray:
                                         multiple_words_to_match=True)
         ])
 
-        # Flag 2:
-        input_array[idx, 1] = filter_input.get_flag_value(
-            list_of_keys=DURING_EVENT_QUESTIONS,
-            list_of_keywords=FLAG_2_KEYWORDS)
+        # Flag 2: Loss of consciousness immediately after urination
+        # or defacation
+        input_array[idx,
+                    1] = filter_input.get_flag_value(DURING_EVENT_QUESTIONS,
+                                                     FLAG_2_KEYWORDS)
 
         # Flag 3: Fall or slump with loss of awareness
         # during event
