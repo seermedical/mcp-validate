@@ -25,7 +25,13 @@ FLAG_1_KEYWORDS = [
     "dissy",
 ]  # TODO: add light + head, vertigo multichoice
 FLAG_2_KEYWORDS_BEFORE = ["toilet", "restroom"]
-FLAG_2_KEYWORDS_DURING = ["conscious", "fall", "aware", "black"]
+FLAG_2_KEYWORDS_DURING = [
+    "conscious",
+    "fall",
+    "aware",
+    "faint",
+    "blackout",
+]  # TODO: add black + out
 FLAG_3_KEYWORDS = ["collapse", "droop", "slump"]
 FLAG_4_KEYWORDS_DURING = ["eye", "close", "shut"]
 FLAG_4_KEYWORDS_DURATION = [
