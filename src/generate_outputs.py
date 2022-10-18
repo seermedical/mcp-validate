@@ -1,15 +1,51 @@
 """
-Model adapted from Beniczky S, et. al. A web-based algorithm to rapidly classify seizures for
-the purpose of drug selection. Epilepsia. 2021 Oct;62(10):2474-2484. doi: 10.1111/epi.17039.
-Epub 2021 Aug 22. PMID: 34420206.
-
-Online tool: epipick.org
+Script of functions to generate input matrix.
 """
-
+from typing import Mapping, Sequence
 import numpy as np
 
+FOCAL_EPILEPSY_BILLING_CODES = ['G40.0', 'G40.1', 'G40.2', 'G40.5', 'G41.2']
+GENERALISED_EPILEPSY_BILLING_CODES = [
+    'G40.7', 'G41.1', 'G40.3', 'G40.6', 'G41.0', 'G40.4'
+]
+UNKNOWN_EPILEPSY_BILLING_CODES = ['G40.8', 'G40.9', 'G41.8', 'G41.9']
 
-def has_undefined_values(input_array: np.ndarray, threshold: int = 3):
+
+def set_diagnosis(list_of_billing_codes: Sequence[str]) -> np.ndarray:
+    """Uses a list of ICD-10 billing codes to generate a row per patient
+    for diagnostic array (see get_predicted_output).
+
+    Args:
+        list_of_billing_codes: List of ICD-10 billing codes
+            for a patient.
+
+    Returns:
+        output_row: Row of 1s and 0s representing True or False
+            diagnostic values.
+    """
+
+    # Init row
+    output_row = np.zeros([1, 5])
+
+    # Populate rows
+    for i, billing_code_category in enumerate([
+            FOCAL_EPILEPSY_BILLING_CODES,
+            GENERALISED_EPILEPSY_BILLING_CODES,
+            UNKNOWN_EPILEPSY_BILLING_CODES,
+    ]):
+        if any(billing_code in billing_code_category
+               for billing_code in list_of_billing_codes):
+            output_row[0, i + 2] = 1
+
+    if output_row.sum() == 0:
+        output_row[0, 0] = 1
+    else:
+        output_row[0, 1] = 1
+
+    return output_row
+
+
+def has_undefined_values(input_array: np.ndarray, threshold: int = 3) -> bool:
     """Checks if an array has enough valid data given a threshold.
 
     Returns:
@@ -19,7 +55,7 @@ def has_undefined_values(input_array: np.ndarray, threshold: int = 3):
     return np.count_nonzero(np.isnan(input_array)) > threshold
 
 
-def has_positive_values(input_array: np.ndarray, threshold: int = 0):
+def has_positive_values(input_array: np.ndarray, threshold: int = 0) -> bool:
     """Checks if an array has enough non-zero data given a threshold.
 
     Returns:
@@ -29,73 +65,42 @@ def has_positive_values(input_array: np.ndarray, threshold: int = 0):
     return np.count_nonzero(input_array) > threshold
 
 
-def generate_output(input_array: np.ndarray):
+def get_predicted_output(input_array: np.ndarray) -> np.ndarray:
     """Predicts diagnosis of each patient based on a set of inputs.
 
-    Input:
-        np.ndarray: Input array where rows represent each patient, and columns
-        represent each input (i.e. question). Inputs are as follows:
-            input_1 - Did skin turn pale before event?
-            input_2 - Before event included urination or defacation, AND event included loss of
-                        consciousness
-            input_3 - Event duration was < 10 sec, AND event included loss of awareness and
-                        fall / slump
-            input_4 - Event duration was > 10 min, AND event included eyes closed
-            input_5 - Before event included severe headache
-            input 6 - Before event included standing up OR sit up OR posture change OR coughing
-                        OR pain, AND event included falling
-            input_7 - Has grey matter lesion (via imaging)
-            input_8 - Event included lip smacking OR chewing
-            input_9 - Events are nocturnal-only
-            input_10 - Onset >= 21 y.o.
-            input_11 - Event duration < 20 sec, AND event included staring OR blank OR unresponsive
-                        OR unaware, AND after event did not include confusion
-            input_12 - Before event excluded resting NOR sleeping AND event included jerks
-            input_13 - Before event included waking w/in 1 hr OR jerking AND event included
-                        convulsions on both sides, stiffening, jerks
+    Args:
+        input_array: Input array where rows represent each patient, and columns
+            represent each input (i.e. question). See to transform_input().
 
-            Elements are represented as NaN = no data, 0 = 'no', or 1 = 'yes'.
-            Example:
-            # +--------+--------+--------+--------+--------+--------+--------+------+----------------+----------+---------+-------+--------------+
-            # | flag_1 | flag_2 | flag_3 | flag_4 | flag_5 | flag_6 | lesion | lips | night_seizures | onset_21 | staring | jerks | tonic_clonic |
-            # +--------+--------+--------+--------+--------+--------+--------+------+----------------+----------+---------+-------+--------------+
-            # | NaN    | NaN    | NaN    | NaN    | NaN    | NaN    | 1      | 0    | 0              | 0        | 0       | 0     | 0            |
-            # +--------+--------+--------+--------+--------+--------+--------+------+----------------+----------+---------+-------+--------------+
-            # | 1      | 1      | 1      | 0      | 0      | 0      | 1      | 0    | 0              | 0        | 0       | 0     | 0            |
-            # +--------+--------+--------+--------+--------+--------+--------+------+----------------+----------+---------+-------+--------------+
-            # | 1      | 1      | 1      | 0      | 0      | 0      | 0      | 0    | 0              | 0        | 1       | 1     | 0            |
-            # +--------+--------+--------+--------+--------+--------+--------+------+----------------+----------+---------+-------+--------------+
+    Returns:
+        predicted_output: Output array where rows represent patients and columns represent
+            predicted diagnosis (i.e. output classes). Outputs are as follows:
+            output_1 - Non-epileptic paroxysmal event
+            output_2 - Epileptic
+            output_3 - Focal
+            output_4 - Generalized
+            output_5 - Absence
+            output_6 - Myoclonic
+            output_7 - GTCS (Generalized Tonic Clonic Seizures)
 
-
-    Output:
-        np.ndarray: Output array where rows represent patients and columns represent
-        predicted diagnosis (i.e. output classes). Outputs are as follows:
-        output_1 - Non-epileptic paroxysmal event
-        output_2 - Epileptic
-        output_3 - Focal
-        output_4 - Generalized
-        output_5 - Absence
-        output_6 - Myoclonic
-        output_7 - GTCS (Generalized Tonic Clonic Seizures)
-
-        Elements are represented as 0 = negative diagnosis, or 1 = positive diagnosis. N.b. A
-        patient may have multiple diagnoses.
-        # Example:
-        # +--------------+----------+-------+-------------+---------+-----------+------+---------+
-        # | non_epilepsy | epilepsy | focal | generalized | absence | myoclonic | GTCS | unknown |
-        # +--------------+----------+-------+-------------+---------+-----------+------+---------+
-        # | 0            | 0        | 0     | 0           | 0       | 0         | 0    | 0       |
-        # +--------------+----------+-------+-------------+---------+-----------+------+---------+
-        # | 0            | 1        | 0     | 0           | 0       | 0         | 0    | 0       |
-        # +--------------+----------+-------+-------------+---------+-----------+------+---------+
-        # | 0            | 0        | 0     | 1           | 1       | 1         | 0    | 0       |
-        # +--------------+----------+-------+-------------+---------+-----------+------+---------+
+            Elements are represented as 0 = negative diagnosis, or 1 = positive diagnosis. N.b. A
+            patient may have multiple diagnoses.
+            # Example:
+            # +--------------+----------+-------+-------------+---------+
+            # | non_epilepsy | epilepsy | focal | generalized | unknown |
+            # +--------------+----------+-------+-------------+---------+
+            # | 0            | 0        | 0     | 0           | 0       |
+            # +--------------+----------+-------+-------------+---------+
+            # | 0            | 1        | 1     | 0           | 0       |
+            # +--------------+----------+-------+-------------+---------+
+            # | 0            | 1        | 0     | 1           | 0       |
+            # +--------------+----------+-------+-------------+---------+
     """
 
     n_rows = input_array.shape[0]
 
     # create an output array
-    output_array = np.zeros((n_rows, 8))
+    predicted_output = np.zeros((n_rows, 8))
 
     for idx in range(n_rows):
 
@@ -111,9 +116,9 @@ def generate_output(input_array: np.ndarray):
             continue
 
         if has_positive_values(input_block_1):
-            output_array[idx, 0] = 1  # non-epilepsy
+            predicted_output[idx, 0] = 1  # non-epilepsy
         else:
-            output_array[idx, 1] = 1  # epilepsy
+            predicted_output[idx, 1] = 1  # epilepsy
 
         # Block 2
         # Focal vs Generalised
@@ -121,7 +126,7 @@ def generate_output(input_array: np.ndarray):
             continue
 
         if has_positive_values(row[9]) or has_positive_values(input_block_2):
-            output_array[idx, 2] = 1  # focal diagnosis
+            predicted_output[idx, 2] = 1  # focal diagnosis
             continue
 
         # Block 3
@@ -131,33 +136,64 @@ def generate_output(input_array: np.ndarray):
             continue
 
         if not has_positive_values(input_block_3):
-            output_array[idx, 7] = 1  # unknown onset
+            predicted_output[idx, 7] = 1  # unknown onset
             continue
 
         if has_positive_values(row[10]):
-            output_array[idx, 4] = 1  # absence
+            predicted_output[idx, 4] = 1  # absence
 
         if has_positive_values(row[11]):
-            output_array[idx, 5] = 1  # myoclonic
+            predicted_output[idx, 5] = 1  # myoclonic
 
         if has_positive_values(row[12]):
-            output_array[idx, 6] = 1  # gtcs
+            predicted_output[idx, 6] = 1  # gtcs
 
-        if has_positive_values(output_array[4:7]):
-            output_array[idx, 3] = 1  # generalised
+        if has_positive_values(predicted_output[4:7]):
+            predicted_output[idx, 3] = 1  # generalised
 
-    return output_array
-
-
-def set_diagnosis(output_array):
-    # list of possible billing codes for each patient
-    return
+    return predicted_output
 
 
-if __name__ == "__main__":
+def get_true_output(
+        input_billing_codes: Mapping[str, Sequence[str]]) -> np.ndarray:
+    """Defines diagnosis for each patient based on a set of billing codes.
 
-    # Create mock input data
-    mock_input_data = np.zeros((5, 13))
+    Args:
+        input_billing_codes: Dictionary of patients' billing codes.
 
-    # Run model
-    mock_output_data = generate_output(mock_input_data)
+    Returns:
+        true_output: Output array where rows represent patients and columns represent
+            true diagnosis. Outputs are as follows:
+            output_1 - Non-epileptic paroxysmal event
+            output_2 - Epileptic
+            output_3 - Focal
+            output_4 - Generalized
+            output_5 - Absence
+            output_6 - Myoclonic
+            output_7 - GTCS (Generalized Tonic Clonic Seizures)
+
+            Elements are represented as 0 = negative diagnosis, or 1 = positive diagnosis. N.b. A
+            patient may have multiple diagnoses.
+            # Example:
+            # +--------------+----------+-------+-------------+---------+
+            # | non_epilepsy | epilepsy | focal | generalized | unknown |
+            # +--------------+----------+-------+-------------+---------+
+            # | 0            | 0        | 0     | 0           | 0       |
+            # +--------------+----------+-------+-------------+---------+
+            # | 0            | 1        | 1     | 0           | 0       |
+            # +--------------+----------+-------+-------------+---------+
+            # | 0            | 1        | 0     | 1           | 0       |
+            # +--------------+----------+-------+-------------+---------+
+    """
+
+    patient_keys = input_billing_codes.keys()
+
+    # Init output array for true diagnoses
+    true_output = np.zeros([len(input_billing_codes), 5])
+
+    for idx, patient in enumerate(patient_keys):
+        patient_values = input_billing_codes[patient].values()
+
+        true_output[idx] = set_diagnosis(list_of_billing_codes=patient_values)
+
+    return true_output
