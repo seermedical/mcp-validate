@@ -48,7 +48,7 @@ class InputFilter:
             return None
 
         input_sentences = ' '.join(input_values)
-        split_words_doc = list(InputFilter.nlp(input_sentences))
+        split_words_doc = list(self.nlp(input_sentences))
         split_words_str = set([token.text for token in split_words_doc])
 
         return any(keyword for keyword in list_of_keywords
