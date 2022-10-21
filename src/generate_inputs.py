@@ -21,7 +21,15 @@ DURATION_QUESTIONS = ["How long do your seizures last?"]
 
 FLAG_1_KEYWORDS = ["pale", "white", "dizzy", "dissy", "vertigo"]
 FLAG_1_KEYWORDS_MULTIPLE = ["light", "head"]
-FLAG_2_KEYWORDS = [""]
+FLAG_2_KEYWORDS_BEFORE = ["toilet", "restroom"]
+FLAG_2_KEYWORDS_DURING = [
+    "conscious",
+    "fall",
+    "aware",
+    "faint",
+    "blackout",
+]
+# TODO: add black + out
 FLAG_3_KEYWORDS = ["collapse", "droop", "slump"]
 FLAG_4_KEYWORDS_DURING = ["eye", "close", "shut"]
 FLAG_4_KEYWORDS_DURATION = [
@@ -139,10 +147,19 @@ def transform_input(input_dict: Mapping[str, Mapping[str, str]]) -> np.ndarray:
             ]
         )
 
-        # Flag 2: Loss of consciousness immediately after urination
-        # or defacation
-        input_array[idx, 1] = filter_input.get_flag_value(
-            DURING_EVENT_QUESTIONS, FLAG_2_KEYWORDS
+        # Flag 2: Loss of consciousness immediately after urination or
+        # defecation
+        input_array[idx, 1] = all(
+            [
+                filter_input.get_flag_value(
+                    list_of_keys=BEFORE_EVENT_QUESTIONS,
+                    list_of_keywords=FLAG_2_KEYWORDS_BEFORE,
+                ),
+                filter_input.get_flag_value(
+                    list_of_keys=DURING_EVENT_QUESTIONS,
+                    list_of_keywords=FLAG_2_KEYWORDS_DURING,
+                ),
+            ]
         )
 
         # Flag 3: Fall or slump with loss of awareness
