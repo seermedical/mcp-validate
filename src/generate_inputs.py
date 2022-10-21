@@ -29,7 +29,7 @@ FLAG_2_KEYWORDS_DURING = [
     "faint",
     "blackout",
 ]
-# TODO: add black + out
+FLAG_2_KEYWORDS_DURING_MULTIPLE = ["black", "out"]
 FLAG_3_KEYWORDS = ["collapse", "droop", "slump"]
 FLAG_4_KEYWORDS_DURING = ["eye", "close", "shut"]
 FLAG_4_KEYWORDS_DURATION = [
@@ -155,9 +155,16 @@ def transform_input(input_dict: Mapping[str, Mapping[str, str]]) -> np.ndarray:
                     list_of_keys=BEFORE_EVENT_QUESTIONS,
                     list_of_keywords=FLAG_2_KEYWORDS_BEFORE,
                 ),
-                filter_input.get_flag_value(
-                    list_of_keys=DURING_EVENT_QUESTIONS,
-                    list_of_keywords=FLAG_2_KEYWORDS_DURING,
+                any(
+                    filter_input.get_flag_value(
+                        list_of_keys=DURING_EVENT_QUESTIONS,
+                        list_of_keywords=FLAG_2_KEYWORDS_DURING,
+                    ),
+                    filter_input.get_flag_value(
+                        list_of_keys=DURING_EVENT_QUESTIONS,
+                        list_of_keywords=FLAG_2_KEYWORDS_DURING_MULTIPLE,
+                        multiple_words_to_match=True,
+                    ),
                 ),
             ]
         )
