@@ -125,7 +125,7 @@ def matches_criteria(
         # Use Spacy's NLP module to generate a list of strings from patient's responses
         input_sentences = " ".join(relevant_responses.values())
         split_words_doc = list(nlp(input_sentences))
-        split_words_lst = set([token.text for token in split_words_doc])
+        split_words_lst = set([token.text.lower() for token in split_words_doc])
 
         # Search for keywords in patient's responses
         matched_criteria.append(search_keywords(split_words_lst, keywords_list))
