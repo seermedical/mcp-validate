@@ -66,7 +66,7 @@ class TestGetInputValues:
             (pytest.lazy_fixture("patient_4_dict"), None),
         ],
     )
-    def test_matches_input_1_criteria(self, mock_response_dict, expected_result):
+    def test_matches_one_criteria(self, mock_response_dict, expected_result):
 
         result = matches_criteria(
             nlp=self.nlp,
