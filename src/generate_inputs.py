@@ -24,6 +24,14 @@ FLAG_1_KEYWORDS = [
     "dizzy",
     "dissy",
 ]  # TODO: add light + head, vertigo multichoice
+FLAG_2_KEYWORDS_BEFORE = ["toilet", "restroom"]
+FLAG_2_KEYWORDS_DURING = [
+    "conscious",
+    "fall",
+    "aware",
+    "faint",
+    "blackout",
+]  # TODO: add black + out
 FLAG_3_KEYWORDS = ["collapse", "droop", "slump"]
 FLAG_4_KEYWORDS_DURING = ["eye", "close", "shut"]
 FLAG_4_KEYWORDS_DURATION = [
@@ -84,7 +92,7 @@ def transform_input(input_dict: Mapping[str, Mapping[str, str]]) -> np.ndarray:
                 represent each input (i.e. question). Inputs are as follows:
                     input_1 - Did skin turn pale before event?
                     input_2 - Before event included urination or defacation, AND event included loss of
-                                consciousness. N.b. Removed due to lack of data.
+                                consciousness.
                     input_3 - Event duration was < 10 sec, AND event included loss of awareness and
                                 fall / slump
                     input_4 - Event duration was > 10 min, AND event included eyes closed
@@ -103,15 +111,15 @@ def transform_input(input_dict: Mapping[str, Mapping[str, str]]) -> np.ndarray:
 
                     Elements are represented as NaN = no data, 0 = 'no', or 1 = 'yes'.
                     Example:
-                        # +--------+--------+--------+--------+--------+--------+--------+------+----------------+----------+---------+-------+-----+
-                        # | flag_1 | flag_3 | flag_4 | flag_5 | flag_6 | lesion | lips | night_seizures | onset_21 | staring | jerks | tonic_clonic |
-                        # +--------+--------+--------+--------+--------+--------+--------+------+----------------+----------+---------+-------+-----+
-                        # | NaN    | NaN    | NaN    | NaN    | NaN    | 1      | 0    | 0              | 0        | 0       | 0     | 0            |
-                        # +--------+--------+--------+--------+--------+--------+--------+------+----------------+----------+---------+-------+-----+
-                        # | 1      | 1      | 0      | 0      | 0      | 1      | 0    | 0              | 0        | 0       | 0     | 0            |
-                        # +--------+--------+--------+--------+--------+--------+--------+------+----------------+----------+---------+-------+-----+
-                        # | 1      | 1      | 0      | 0      | 0      | 0      | 0    | 0              | 0        | 1       | 1     | 0            |
-                        # +--------+--------+--------+--------+--------+--------+--------+------+----------------+----------+---------+-------+-----+
+                        # +--------+--------+--------+--------+--------+--------+--------+------+----------------+----------+---------+-------+--------------+
+                        # | flag_1 | flag_2 | flag_3 | flag_4 | flag_5 | flag_6 | lesion | lips | night_seizures | onset_21 | staring | jerks | tonic_clonic |
+                        # +--------+--------+--------+--------+--------+--------+--------+------+----------------+----------+---------+-------+--------------+
+                        # | NaN    | NaN    | NaN    | NaN    | NaN    | NaN    | 1      | 0    | 0              | 0        | 0       | 0     | 0            |
+                        # +--------+--------+--------+--------+--------+--------+--------+------+----------------+----------+---------+-------+--------------+
+                        # | 1      | 1      | 1      | 0      | 0      | 0      | 1      | 0    | 0              | 0        | 0       | 0     | 0            |
+                        # +--------+--------+--------+--------+--------+--------+--------+------+----------------+----------+---------+-------+--------------+
+                        # | 1      | 1      | 1      | 0      | 0      | 0      | 0      | 0    | 0              | 0        | 1       | 1     | 0            |
+                        # +--------+--------+--------+--------+--------+--------+--------+------+----------------+----------+---------+-------+--------------+
     """
 
     # Init (transformed) One Hot Encoded input array
@@ -123,6 +131,21 @@ def transform_input(input_dict: Mapping[str, Mapping[str, str]]) -> np.ndarray:
         # Flag 1: Pale skin before event
         input_array[idx, 0] = filter_input.get_flag_value(
             list_of_keys=BEFORE_EVENT_QUESTIONS, list_of_keywords=FLAG_1_KEYWORDS
+        )
+
+        # Flag 2: Loss of consciousness immediately after urination or
+        # defecation
+        input_array[idx, 1] = all(
+            [
+                filter_input.get_flag_value(
+                    list_of_keys=BEFORE_EVENT_QUESTIONS,
+                    list_of_keywords=FLAG_2_KEYWORDS_BEFORE,
+                ),
+                filter_input.get_flag_value(
+                    list_of_keys=DURING_EVENT_QUESTIONS,
+                    list_of_keywords=FLAG_2_KEYWORDS_DURING,
+                ),
+            ]
         )
 
         # Flag 3: Fall or slump with loss of awareness
