@@ -49,6 +49,20 @@ def patient_4_dict():
     return mock_input_dict_template(response_7="a few seconds")
 
 
+@pytest.fixture
+def patient_5_dict():
+    return mock_input_dict_template(
+        response_1="Usually when I go to the toilet.", response_6="I faint."
+    )
+
+
+@pytest.fixture
+def patient_6_dict():
+    return mock_input_dict_template(
+        response_1="Usually when I go to the toilet.", response_6="I black out."
+    )
+
+
 class TestGetInputValues:
     """Tests function get_flag_value() to check keywords in free text answer,
     and return True, False, or None based on a positive, negative, or
@@ -72,6 +86,25 @@ class TestGetInputValues:
             nlp=self.nlp,
             response_dict=mock_response_dict["patient_id"],
             keywords_dict=KEYWORDS_DICT[0],
+        )
+
+        assert result == expected_result
+
+    @pytest.mark.parametrize(
+        "mock_response_dict, expected_result",
+        [
+            (pytest.lazy_fixture("patient_1_dict"), False),
+            (pytest.lazy_fixture("patient_5_dict"), True),
+            (pytest.lazy_fixture("patient_6_dict"), True),
+            (pytest.lazy_fixture("patient_4_dict"), None),
+        ],
+    )
+    def test_matches_two_criteria(self, mock_response_dict, expected_result):
+
+        result = matches_criteria(
+            nlp=self.nlp,
+            response_dict=mock_response_dict["patient_id"],
+            keywords_dict=KEYWORDS_DICT[1],
         )
 
         assert result == expected_result
