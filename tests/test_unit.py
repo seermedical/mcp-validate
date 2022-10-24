@@ -59,7 +59,7 @@ def patient_5_dict():
 @pytest.fixture
 def patient_6_dict():
     return mock_input_dict_template(
-        response_1="Usually when I go to the toilet.", response_6="I black out."
+        response_1="Usually when I go to the toilet.", response_6="Blacking out."
     )
 
 
