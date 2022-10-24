@@ -138,7 +138,7 @@ def transform_input(input_dict: Mapping[str, Mapping[str, str]]) -> np.ndarray:
                             ...
                         }
                     }
-    =
+
         Returns:
             np.ndarray: Input array where rows represent each patient, and columns
                 represent each input (i.e. question). Inputs are as follows:
