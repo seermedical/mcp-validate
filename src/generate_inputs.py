@@ -2,7 +2,7 @@
 Script of functions to generate predicted and true output matrices.
 """
 
-from typing import List, Mapping
+from typing import List, Mapping, Union
 
 import numpy as np
 import spacy
@@ -11,7 +11,7 @@ QUESTIONS_DICT = {
     "before": [
         "What other things do you experience right before or at the beginning of a seizure?",
         "Please describe what you feel right before or at the beginning of a seizure.",
-        "Please specify other warning."
+        "Please specify other warning.",
         "Which warnings do you get before you have a seizure?",
     ],
     "during": [
@@ -45,8 +45,8 @@ KEYWORDS_DICT = {
 
 def search_keywords(
     response_list: List[str],
-    keywords_list: List[str, tuple],
-) -> bool:
+    keywords_list: List[Union[str, tuple]],
+) -> Union[bool, None]:
     """Determines if any keywords exist in a list of words.
     Takes a list of words derived from a patient's response/s and
     and searches for specific keywords.
@@ -63,20 +63,25 @@ def search_keywords(
     """
     matched_words = []
 
-    for keywords in keywords_list:
-        if type(keywords) == str:
-            matched_words.append([keywords in response_list])
+    for keyword in keywords_list:
+        if type(keyword) == str:
+            matched_words.append(any(keyword in word for word in response_list))
 
         else:
-            matched_words.append(all(keyword in response_list for keyword in keywords))
+            matched_split_words = []
+            for split_word in keyword:
+                matched_split_words.append(
+                    any(split_word in word for word in response_list)
+                )
+            matched_words.append(all(matched_split_words))
 
     return any(matched_words)
 
 
 def matches_criteria(
     nlp: spacy.load,
-    response_dict: Mapping[Mapping[str, str]],
-    keywords_dict: Mapping[str, List[str, tuple]],
+    response_dict: Mapping[str, str],
+    keywords_dict: Mapping[str, List[Union[str, tuple]]],
 ) -> bool:
     """Determines if a patient's reponse/s fills given criteria for a particular input.
     Takes dict of a patient's responses and returns True if a patient
@@ -100,24 +105,34 @@ def matches_criteria(
             "during": ["conscious", "fall", "aware", "faint", "blackout", ("black", "out")]}
 
     Returns:
-        bool: Returns True if all criteria is matched, else False.
+        bool: Returns True if all criteria is matched, elif False if no criteria
+        is matched, else None if no relevant questions are answered.
     """
 
     matched_criteria = []
 
     # Filter response_dict (patient's responses) to relevant questions only
-    for key in keywords_dict.keys():
-        response_dict_filtered = {
-            question: response_dict[question] for question in QUESTIONS_DICT[key]
-        }.values()
+    for criteria, keywords_list in keywords_dict.items():
+        relevant_questions = QUESTIONS_DICT[criteria]
+        relevant_responses = {
+            k: v for (k, v) in response_dict.items() if k in relevant_questions
+        }
+
+        if not any(relevant_responses.values()):
+            matched_criteria.append(None)
+            continue
 
         # Use Spacy's NLP module to generate a list of strings from patient's responses
-        input_sentences = " ".join(response_dict_filtered)
+        input_sentences = " ".join(relevant_responses.values())
         split_words_doc = list(nlp(input_sentences))
         split_words_lst = set([token.text for token in split_words_doc])
 
         # Search for keywords in patient's responses
-        matched_criteria.append(search_keywords(split_words_lst, keywords_dict[key]))
+        matched_criteria.append(search_keywords(split_words_lst, keywords_list))
+
+    # Return None if no responses to relevant questions
+    if matched_criteria.count(None) == len(matched_criteria):
+        return None
 
     return all(matched_criteria)
 
