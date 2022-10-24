@@ -2,77 +2,129 @@
 Script of functions to generate predicted and true output matrices.
 """
 
-from typing import List, Mapping, Optional
+from typing import List, Mapping
 
 import numpy as np
 import spacy
 
-BEFORE_EVENT_QUESTIONS = [
-    "What other things do you experience right before or at the beginning of a seizure?",
-    "Please describe what you feel right before or at the beginning of a seizure.",
-    "Please specify other warning.",
-]
-DURING_EVENT_QUESTIONS = [
-    "Please specify other symptoms.",
-    "Describe what happens during your seizures.",
-]
-DURATION_QUESTIONS = ["How long do your seizures last?"]
-
-FLAG_1_KEYWORDS = [
-    "pale",
-    "white",
-    "dizzy",
-    "dissy",
-]  # TODO: add light + head, vertigo multichoice
-FLAG_2_KEYWORDS_BEFORE = ["toilet", "restroom"]
-FLAG_2_KEYWORDS_DURING = [
-    "conscious",
-    "fall",
-    "aware",
-    "faint",
-    "blackout",
-]  # TODO: add black + out
-FLAG_3_KEYWORDS = ["collapse", "droop", "slump"]
-FLAG_4_KEYWORDS_DURING = ["eye", "close", "shut"]
-FLAG_4_KEYWORDS_DURATION = [
-    "7 - 15 minutes",
-    "more than 15 minutes",
-]  # TODO: check with MCPV team that format is in str
-FLAG_5_KEYWORDS = ["headache", "migraine"]  # TODO: add head + ache
-FLAG_6_KEYWORDS_BEFORE = ["pain", "cough", "stand"]
-FLAG_6_KEYWORDS_DURING = ["fell", "fall"]
+QUESTIONS_DICT = {
+    "before": [
+        "What other things do you experience right before or at the beginning of a seizure?",
+        "Please describe what you feel right before or at the beginning of a seizure.",
+        "Please specify other warning."
+        "Which warnings do you get before you have a seizure?",
+    ],
+    "during": [
+        "Please specify other symptoms.",
+        "Describe what happens during your seizures.",
+    ],
+    "duration": ["How long do your seizures last?"],
+}
 
 
-class InputFilter:
+KEYWORDS_DICT = {
+    0: {
+        "before": ["pale", "white", "dizzy", "dissy", "vertigo", ("light", "head")],
+    },
+    1: {
+        "before": ["toilet", "restroom"],
+        "during": ["conscious", "fall", "aware", "faint", "blackout", ("black", "out")],
+    },
+    2: {"during": ["collapse", "droop", "slump"]},
+    3: {
+        "during": ["eye", "close", "shut"],
+        "duration": [
+            "7 - 15 minutes",
+            "more than 15 minutes",
+        ],
+    },
+    4: {"before": ["headache", "migraine", ("head", "ache")]},
+    5: {"before": ["pain", "cough", "stand"], "during": ["fell", "fall"]},
+}  # TODO: check with MCPV team that format is in str
 
-    nlp = spacy.load("en_core_web_sm")
 
-    def __init__(self, patient_dict):
-        self.patient_dict = patient_dict
+def search_keywords(
+    response_list: List[str],
+    keywords_list: List[str, tuple],
+) -> bool:
+    """Determines if any keywords exist in a list of words.
+    Takes a list of words derived from a patient's response/s and
+    and searches for specific keywords.
 
-    def get_flag_value(
-        self, list_of_keys: List[str], list_of_keywords: List[str]
-    ) -> Optional[bool]:
-        # Filter the patient dict of keys (questions) and values (answers)
-        input_dict = {key: self.patient_dict[key] for key in list_of_keys}
+    In some instances, multiple keywords are required to determine
+    a match, e.g. "black" and "out" in the instance of "black out".
 
-        # Return NaN if no answers provided to key questions
-        input_values = input_dict.values()
-        if not any(input_values):
-            return None
+    Args:
+        response_list: List of words derived from a patient's response/s.
+        keywords_list: List of keywords to match.
 
-        input_sentences = " ".join(input_values)
-        split_words_doc = list(self.nlp(input_sentences))
-        split_words_str = set([token.text for token in split_words_doc])
+    Returns:
+        bool: Returns True if any keywords in list of words, else False.
+    """
+    matched_words = []
 
-        return any(
-            keyword for keyword in list_of_keywords if keyword in split_words_str
-        )
+    for keywords in keywords_list:
+        if type(keywords) == str:
+            matched_words.append([keywords in response_list])
+
+        else:
+            matched_words.append(all(keyword in response_list for keyword in keywords))
+
+    return any(matched_words)
+
+
+def matches_criteria(
+    nlp: spacy.load,
+    response_dict: Mapping[Mapping[str, str]],
+    keywords_dict: Mapping[str, List[str, tuple]],
+) -> bool:
+    """Determines if a patient's reponse/s fills given criteria for a particular input.
+    Takes dict of a patient's responses and returns True if a patient
+    matches a given set of criteria, and False if the patient does not match a
+    given set of criteria.
+
+    Args:
+    response_dict: A patient's responses to a set of questions. Key-value pairs
+    represent questions and responses.
+        Example: {
+            "Question 1": "Response 1",
+            "Question 2": "Response 2",
+            ...
+        }
+    keywords_dict: A set of criteria required for a given input. Key-value pairs
+    represent an input's criteria category and criteria keywords. The criteria
+    category, e.g. "before" is used to determine which questions from the list of
+    available questions is relevant.
+        Example: {
+            "before": ["toilet", "restroom"],
+            "during": ["conscious", "fall", "aware", "faint", "blackout", ("black", "out")]}
+
+    Returns:
+        bool: Returns True if all criteria is matched, else False.
+    """
+
+    matched_criteria = []
+
+    # Filter response_dict (patient's responses) to relevant questions only
+    for key in keywords_dict.keys():
+        response_dict_filtered = {
+            question: response_dict[question] for question in QUESTIONS_DICT[key]
+        }.values()
+
+        # Use Spacy's NLP module to generate a list of strings from patient's responses
+        input_sentences = " ".join(response_dict_filtered)
+        split_words_doc = list(nlp(input_sentences))
+        split_words_lst = set([token.text for token in split_words_doc])
+
+        # Search for keywords in patient's responses
+        matched_criteria.append(search_keywords(split_words_lst, keywords_dict[key]))
+
+    return all(matched_criteria)
 
 
 def transform_input(input_dict: Mapping[str, Mapping[str, str]]) -> np.ndarray:
     """Takes dictionary of patient's responses to survey questions
-        and transforms to One Hot Encoded matrix."
+    and transforms to One Hot Encoded matrix."
 
         Args:
             input_dict (dict): Dictionary where keys represent a patient,
@@ -86,7 +138,7 @@ def transform_input(input_dict: Mapping[str, Mapping[str, str]]) -> np.ndarray:
                             ...
                         }
                     }
-    =
+
         Returns:
             np.ndarray: Input array where rows represent each patient, and columns
                 represent each input (i.e. question). Inputs are as follows:
@@ -122,70 +174,22 @@ def transform_input(input_dict: Mapping[str, Mapping[str, str]]) -> np.ndarray:
                         # +--------+--------+--------+--------+--------+--------+--------+------+----------------+----------+---------+-------+--------------+
     """
 
+    nlp = spacy.load("en_core_web_sm")
+
     # Init (transformed) One Hot Encoded input array
     input_array = np.zeros([len(input_dict), 13])
 
-    for idx, patient_dict in enumerate(input_dict.values()):
+    for row_idx, patient_dict in enumerate(input_dict.values()):
 
-        filter_input = InputFilter(patient_dict=patient_dict)
-        # Flag 1: Pale skin before event
-        input_array[idx, 0] = filter_input.get_flag_value(
-            list_of_keys=BEFORE_EVENT_QUESTIONS, list_of_keywords=FLAG_1_KEYWORDS
-        )
+        # Set row to np.nan if no responses
+        if not any(patient_dict.values()):
+            input_array[row_idx, :] = np.nan
 
-        # Flag 2: Loss of consciousness immediately after urination or
-        # defecation
-        input_array[idx, 1] = all(
-            [
-                filter_input.get_flag_value(
-                    list_of_keys=BEFORE_EVENT_QUESTIONS,
-                    list_of_keywords=FLAG_2_KEYWORDS_BEFORE,
-                ),
-                filter_input.get_flag_value(
-                    list_of_keys=DURING_EVENT_QUESTIONS,
-                    list_of_keywords=FLAG_2_KEYWORDS_DURING,
-                ),
-            ]
-        )
+        for col_idx, keywords_dict in list(KEYWORDS_DICT.items()):
 
-        # Flag 3: Fall or slump with loss of awareness
-        # during event
-        input_array[idx, 2] = filter_input.get_flag_value(
-            list_of_keys=DURING_EVENT_QUESTIONS, list_of_keywords=FLAG_3_KEYWORDS
-        )
-
-        # Flag 4: Seizure with eyes closed lasting longer than 10 minutes
-        input_array[idx, 3] = all(
-            [
-                filter_input.get_flag_value(
-                    list_of_keys=DURING_EVENT_QUESTIONS,
-                    list_of_keywords=FLAG_4_KEYWORDS_DURING,
-                ),
-                filter_input.get_flag_value(
-                    list_of_keys=DURATION_QUESTIONS,
-                    list_of_keywords=FLAG_4_KEYWORDS_DURATION,
-                ),
-            ]
-        )
-
-        # Flag 5: Severe preictal headache
-        input_array[idx, 4] = filter_input.get_flag_value(
-            list_of_keys=BEFORE_EVENT_QUESTIONS, list_of_keywords=FLAG_5_KEYWORDS
-        )
-
-        # Flag 6: Fall after posture change, standing, coughing, or pain
-        input_array[idx, 5] = all(
-            [
-                filter_input.get_flag_value(
-                    list_of_keys=BEFORE_EVENT_QUESTIONS,
-                    list_of_keywords=FLAG_6_KEYWORDS_BEFORE,
-                ),
-                filter_input.get_flag_value(
-                    list_of_keys=DURING_EVENT_QUESTIONS,
-                    list_of_keywords=FLAG_6_KEYWORDS_DURING,
-                ),
-            ]
-        )
+            input_array[row_idx, col_idx] = matches_criteria(
+                nlp, patient_dict, keywords_dict
+            )
 
     input_array = input_array.astype(float)
     return input_array
