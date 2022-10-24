@@ -49,34 +49,6 @@ def patient_4_dict():
     return mock_input_dict_template(response_7="a few seconds")
 
 
-# @pytest.fixture
-# def patient_2_dict():
-#     return {
-#         "What other things do you experience right before or at the beginning of a seizure?": "",
-#         "Please describe what you feel right before or at the beginning of a seizure.": "I feel pain, then I fall.",
-#         "Please specify other warning.": "",
-#         "Please specify other injuries.": "",
-#         "What injuries have you experienced during a seizure?s": "",
-#         "Please specify other symptoms.": "",
-#         "Describe what happens during your seizures.": "",
-#         "How long do your seizures last?": "a few seconds",
-#     }
-
-
-# @pytest.fixture
-# def patient_3_dict():
-#     return {
-#         "What other things do you experience right before or at the beginning of a seizure?": "",
-#         "Please describe what you feel right before or at the beginning of a seizure.": "",
-#         "Please specify other warning.": "",
-#         "Please specify other injuries.": "",
-#         "What injuries have you experienced during a seizure?s": "",
-#         "Please specify other symptoms.": "",
-#         "Describe what happens during your seizures.": "",
-#         "How long do your seizures last?": "a few seconds",
-#     }
-
-
 class TestGetInputValues:
     """Tests function get_flag_value() to check keywords in free text answer,
     and return True, False, or None based on a positive, negative, or
