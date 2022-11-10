@@ -57,7 +57,7 @@ def set_diagnosis(list_of_billing_codes: Sequence[str]) -> np.ndarray:
 
 
 def has_undefined_values(input_array: np.ndarray, threshold: int = 3) -> bool:
-    """Checks if an array has enough valid data given a threshold.
+    """Counts if number of NaNs in a given array is above a given threshold.
 
     Returns:
         bool: Returns True if n of NaN elements exceeds threshold, and False if
@@ -86,26 +86,26 @@ def get_predicted_output(input_array: np.ndarray) -> np.ndarray:
     Returns:
         predicted_output: Output array where rows represent patients and columns represent
             predicted diagnosis (i.e. output classes). Outputs are as follows:
-            output_1 - Non-epileptic paroxysmal event
-            output_2 - Epileptic
-            output_3 - Focal
-            output_4 - Generalized
-            output_5 - Absence
-            output_6 - Myoclonic
-            output_7 - GTCS (Generalized Tonic Clonic Seizures)
+            output_1 - Indeterminate
+            output_2 - Non-epileptic
+            output_3 - Epileptic
+            output_4 - Focal
+            output_5 - Generalized
+            output_6 - Unknown Onset
 
             Elements are represented as 0 = negative diagnosis, or 1 = positive diagnosis. N.b. A
             patient may have multiple diagnoses.
             # Example:
-            # +--------------+----------+-------+-------------+---------+
-            # | non_epilepsy | epilepsy | focal | generalized | unknown |
-            # +--------------+----------+-------+-------------+---------+
-            # | 0            | 0        | 0     | 0           | 0       |
-            # +--------------+----------+-------+-------------+---------+
-            # | 0            | 1        | 1     | 0           | 0       |
-            # +--------------+----------+-------+-------------+---------+
-            # | 0            | 1        | 0     | 1           | 0       |
-            # +--------------+----------+-------+-------------+---------+
+                # +--------------+--------------+----------+-------+-------------+---------+
+                # indeterminate  | non_epilepsy | epilepsy | focal | generalized | unknown |
+                # +--------------+--------------+----------+-------+-------------+---------+
+                # | 1            | 0            | 0        | 0     | 0           | 0       |
+                # +--------------+--------------+----------+-------+-------------+---------+
+                # | 0            | 0            | 1        | 1     | 0           | 0       |
+                # +--------------+--------------+----------+-------+-------------+---------+
+                # | 0            | 0            | 1        | 0     | 1           | 0       |
+                # +--------------+--------------+----------+-------+-------------+---------+
+
     """
 
     n_rows = input_array.shape[0]
@@ -113,23 +113,29 @@ def get_predicted_output(input_array: np.ndarray) -> np.ndarray:
     # create an output array
     predicted_output = np.zeros((n_rows, 8))
 
+    # TODO: change logic to use indeterminate if NaNs
     for idx in range(n_rows):
         row = input_array[idx, :]
 
-        # Epilepsy vs Non-Epilepsy
+        # No data
         if has_undefined_values(row, threshold=3):
             continue
-
+        # Indeterminate
+        if has_undefined_values(row, threshold=3):
+            predicted_output[idx, 0] = 1
+        # Epilepsy vs Non-epilepsy
         if has_positive_values(row):
-            predicted_output[idx, 0] = 1  # non-epilepsy
+            # Non-epilepsy
+            predicted_output[idx, 1] = 1
         else:
-            predicted_output[idx, 1] = 1  # epilepsy
+            # Epilepsy
+            predicted_output[idx, 2] = 1
 
     return predicted_output
 
 
 def get_true_output(input_billing_codes: Mapping[str, Sequence[str]]) -> np.ndarray:
-    """Defines diagnosis for each patient based on a set of billing codes.
+    """Defines diagnosis class for each patient based on the patient's billing code/s.
 
     Args:
         input_billing_codes: Dictionary of patients' billing codes.
@@ -137,26 +143,25 @@ def get_true_output(input_billing_codes: Mapping[str, Sequence[str]]) -> np.ndar
     Returns:
         true_output: Output array where rows represent patients and columns represent
             true diagnosis. Outputs are as follows:
-            output_1 - Non-epileptic paroxysmal event
-            output_2 - Epileptic
-            output_3 - Focal
-            output_4 - Generalized
-            output_5 - Absence
-            output_6 - Myoclonic
-            output_7 - GTCS (Generalized Tonic Clonic Seizures)
+            output_1 - Indeterminate
+            output_2 - Non-epileptic
+            output_3 - Epileptic
+            output_4 - Focal
+            output_5 - Generalized
+            output_6 - Unknown Onset
 
             Elements are represented as 0 = negative diagnosis, or 1 = positive diagnosis. N.b. A
             patient may have multiple diagnoses.
             # Example:
-            # +--------------+----------+-------+-------------+---------+
-            # | non_epilepsy | epilepsy | focal | generalized | unknown |
-            # +--------------+----------+-------+-------------+---------+
-            # | 0            | 0        | 0     | 0           | 0       |
-            # +--------------+----------+-------+-------------+---------+
-            # | 0            | 1        | 1     | 0           | 0       |
-            # +--------------+----------+-------+-------------+---------+
-            # | 0            | 1        | 0     | 1           | 0       |
-            # +--------------+----------+-------+-------------+---------+
+                # +--------------+--------------+----------+-------+-------------+---------+
+                # indeterminate  | non_epilepsy | epilepsy | focal | generalized | unknown |
+                # +--------------+--------------+----------+-------+-------------+---------+
+                # | 1            | 0            | 0        | 0     | 0           | 0       |
+                # +--------------+--------------+----------+-------+-------------+---------+
+                # | 0            | 0            | 1        | 1     | 0           | 0       |
+                # +--------------+--------------+----------+-------+-------------+---------+
+                # | 0            | 0            | 1        | 0     | 1           | 0       |
+                # +--------------+--------------+----------+-------+-------------+---------+
     """
 
     patient_keys = input_billing_codes.keys()
