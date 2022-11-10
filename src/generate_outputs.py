@@ -4,11 +4,16 @@ Script of functions to generate input matrix.
 from typing import Mapping, Sequence
 import numpy as np
 
-FOCAL_EPILEPSY_BILLING_CODES = ['G40.0', 'G40.1', 'G40.2', 'G40.5', 'G41.2']
+FOCAL_EPILEPSY_BILLING_CODES = ["G40.0", "G40.1", "G40.2", "G40.5", "G41.2"]
 GENERALISED_EPILEPSY_BILLING_CODES = [
-    'G40.7', 'G41.1', 'G40.3', 'G40.6', 'G41.0', 'G40.4'
+    "G40.7",
+    "G41.1",
+    "G40.3",
+    "G40.6",
+    "G41.0",
+    "G40.4",
 ]
-UNKNOWN_EPILEPSY_BILLING_CODES = ['G40.8', 'G40.9', 'G41.8', 'G41.9']
+UNKNOWN_EPILEPSY_BILLING_CODES = ["G40.8", "G40.9", "G41.8", "G41.9"]
 
 
 def set_diagnosis(list_of_billing_codes: Sequence[str]) -> np.ndarray:
@@ -28,13 +33,17 @@ def set_diagnosis(list_of_billing_codes: Sequence[str]) -> np.ndarray:
     output_row = np.zeros([1, 5])
 
     # Populate rows
-    for i, billing_code_category in enumerate([
+    for i, billing_code_category in enumerate(
+        [
             FOCAL_EPILEPSY_BILLING_CODES,
             GENERALISED_EPILEPSY_BILLING_CODES,
             UNKNOWN_EPILEPSY_BILLING_CODES,
-    ]):
-        if any(billing_code in billing_code_category
-               for billing_code in list_of_billing_codes):
+        ]
+    ):
+        if any(
+            billing_code in billing_code_category
+            for billing_code in list_of_billing_codes
+        ):
             output_row[0, i + 2] = 1
 
     if output_row.sum() == 0:
@@ -144,8 +153,7 @@ def get_predicted_output(input_array: np.ndarray) -> np.ndarray:
     return predicted_output
 
 
-def get_true_output(
-        input_billing_codes: Mapping[str, Sequence[str]]) -> np.ndarray:
+def get_true_output(input_billing_codes: Mapping[str, Sequence[str]]) -> np.ndarray:
     """Defines diagnosis class for each patient based on the patient's billing code/s.
 
     Args:
