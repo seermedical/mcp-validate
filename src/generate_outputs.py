@@ -39,7 +39,7 @@ def set_diagnosis(list_of_billing_codes: Sequence[str]) -> np.ndarray:
         [
             BILLING_CODES["focal"],
             BILLING_CODES["generalised"],
-            BILLING_CODES["unk"],
+            BILLING_CODES["unknown"],
         ]
     ):
         if any(
