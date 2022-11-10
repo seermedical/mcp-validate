@@ -118,7 +118,7 @@ def get_predicted_output(input_array: np.ndarray) -> np.ndarray:
         row = input_array[idx, :]
 
         # No data
-        if has_undefined_values(row, threshold=3):
+        if has_undefined_values(row, threshold=1):
             continue
         # Indeterminate
         if has_undefined_values(row, threshold=3):
