@@ -202,7 +202,7 @@ def transform_input(input_dict: Mapping[str, Mapping[str, str]]) -> np.ndarray:
         if not any(patient_dict.values()):
             input_array[row_idx, :] = np.nan
 
-        for col_idx, keywords_dict in list(KEYWORDS_DICT.items()):
+        for col_idx, keywords_dict in KEYWORDS_DICT.items():
 
             input_array[row_idx, col_idx] = matches_criteria(
                 nlp, patient_dict, keywords_dict
