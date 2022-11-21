@@ -117,7 +117,7 @@ def matches_criteria(
     for criteria, keywords_list in keywords_dict.items():
         relevant_questions = QUESTIONS_DICT[criteria]
         relevant_responses = {
-            k: v for (k, v) in response_dict.items() if k in relevant_questions
+            k: v for k, v in response_dict.items() if k in relevant_questions
         }
 
         if not any(relevant_responses.values()):
