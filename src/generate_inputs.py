@@ -79,7 +79,7 @@ def search_keywords(
 
 
 def matches_criteria(
-    nlp: spacy.load,
+    nlp: spacy.language.Language,
     response_dict: Mapping[str, str],
     keywords_dict: Mapping[str, List[Union[str, tuple]]],
 ) -> bool:
