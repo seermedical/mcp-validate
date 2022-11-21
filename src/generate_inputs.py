@@ -48,11 +48,11 @@ def search_keywords(
     keywords_list: List[Union[str, tuple]],
 ) -> Union[bool, None]:
     """Determines if any keywords exist in a list of words.
-    Takes a list of words derived from a patient's response/s and
-    and searches for specific keywords.
 
-    In some instances, multiple keywords are required to determine
-    a match, e.g. "black" and "out" in the instance of "black out".
+    Takes a list of words derived from a patient's response/s and searches
+    for specific keywords. In some instances, multiple keywords are
+    required to determine a match, e.g. "black" and "out" in the instance
+    of "black out".
 
     Args:
         response_list: List of words derived from a patient's response/s.
@@ -83,30 +83,32 @@ def matches_criteria(
     response_dict: Mapping[str, str],
     keywords_dict: Mapping[str, List[Union[str, tuple]]],
 ) -> bool:
-    """Determines if a patient's reponse/s fills given criteria for a particular input.
+    """Determines if patient reponses fill given criteria for a particular input.
+
     Takes dict of a patient's responses and returns True if a patient
     matches a given set of criteria, and False if the patient does not match a
     given set of criteria.
 
     Args:
-    response_dict: A patient's responses to a set of questions. Key-value pairs
-    represent questions and responses.
-        Example: {
-            "Question 1": "Response 1",
-            "Question 2": "Response 2",
-            ...
-        }
-    keywords_dict: A set of criteria required for a given input. Key-value pairs
-    represent an input's criteria category and criteria keywords. The criteria
-    category, e.g. "before" is used to determine which questions from the list of
-    available questions is relevant.
-        Example: {
-            "before": ["toilet", "restroom"],
-            "during": ["conscious", "fall", "aware", "faint", "blackout", ("black", "out")]}
+        response_dict: A patient's responses to a set of questions. Key-value pairs
+            represent questions and responses.
+            Example: {
+                "Question 1": "Response 1",
+                "Question 2": "Response 2",
+                ...
+            }
+        keywords_dict: A set of criteria required for a given input. Key-value pairs
+            represent an input's criteria category and criteria keywords. The criteria
+            category, e.g. "before" is used to determine which questions from the list of
+            available questions is relevant.
+            Example: {
+                "before": ["toilet", "restroom"],
+                "during": ["conscious", "fall", "aware", "faint", "blackout", ("black", "out")]
+                }
 
     Returns:
         bool: Returns True if all criteria is matched, elif False if no criteria
-        is matched, else None if no relevant questions are answered.
+            is matched, else None if no relevant questions are answered.
     """
 
     matched_criteria = []
@@ -138,8 +140,8 @@ def matches_criteria(
 
 
 def transform_input(input_dict: Mapping[str, Mapping[str, str]]) -> np.ndarray:
-    """Takes dictionary of patient's responses to survey questions
-    and transforms to One Hot Encoded matrix."
+    """Takes dictionary of patient responses and generates a
+    One Hot Encoded matrix."
 
         Args:
             input_dict (dict): Dictionary where keys represent a patient,
@@ -155,37 +157,38 @@ def transform_input(input_dict: Mapping[str, Mapping[str, str]]) -> np.ndarray:
                     }
         Returns:
             np.ndarray: Input array where rows represent each patient, and columns
-                represent each input (i.e. question). Inputs are as follows:
-                    input_1 - Did skin turn pale before event?
-                    input_2 - Before event included urination or defacation, AND event included loss of
+                represent each input (i.e. question).
+                Inputs are as follows:
+                    Input 1 - Did skin turn pale before event?
+                    Input 2 - Before event included urination or defacation, AND event included loss of
                                 consciousness.
-                    input_3 - Event duration was < 10 sec, AND event included loss of awareness and
+                    Input 3 - Event duration was < 10 sec, AND event included loss of awareness and
                                 fall / slump
-                    input_4 - Event duration was > 10 min, AND event included eyes closed
-                    input_5 - Before event included severe headache
-                    input 6 - Before event included standing up OR sit up OR posture change OR coughing
+                    Input 4 - Event duration was > 10 min, AND event included eyes closed
+                    Input 5 - Before event included severe headache
+                    Input 6 - Before event included standing up OR sit up OR posture change OR coughing
                                 OR pain, AND event included falling
-                    input_7 - Has grey matter lesion (via imaging)
-                    input_8 - Event included lip smacking OR chewing
-                    input_9 - Events are nocturnal-only
-                    input_10 - Onset >= 21 y.o.
-                    input_11 - Event duration < 20 sec, AND event included staring OR blank OR unresponsive
+                    Input 7 - Has grey matter lesion (via imaging)
+                    Input 8 - Event included lip smacking OR chewing
+                    Input 9 - Events are nocturnal-only
+                    Input 10 - Onset >= 21 y.o.
+                    Input 11 - Event duration < 20 sec, AND event included staring OR blank OR unresponsive
                                 OR unaware, AND after event did not include confusion
-                    input_12 - Before event excluded resting NOR sleeping AND event included jerks
-                    input_13 - Before event included waking w/in 1 hr OR jerking AND event included
+                    Input 12 - Before event excluded resting NOR sleeping AND event included jerks
+                    Input 13 - Before event included waking w/in 1 hr OR jerking AND event included
                                 convulsions on both sides, stiffening, jerks
 
                     Elements are represented as NaN = no data, 0 = 'no', or 1 = 'yes'.
-                    Example:
-                        # +--------+--------+--------+--------+--------+--------+--------+------+----------------+----------+---------+-------+--------------+
-                        # | flag_1 | flag_2 | flag_3 | flag_4 | flag_5 | flag_6 | lesion | lips | night_seizures | onset_21 | staring | jerks | tonic_clonic |
-                        # +--------+--------+--------+--------+--------+--------+--------+------+----------------+----------+---------+-------+--------------+
-                        # | NaN    | NaN    | NaN    | NaN    | NaN    | NaN    | 1      | 0    | 0              | 0        | 0       | 0     | 0            |
-                        # +--------+--------+--------+--------+--------+--------+--------+------+----------------+----------+---------+-------+--------------+
-                        # | 1      | 1      | 1      | 0      | 0      | 0      | 1      | 0    | 0              | 0        | 0       | 0     | 0            |
-                        # +--------+--------+--------+--------+--------+--------+--------+------+----------------+----------+---------+-------+--------------+
-                        # | 1      | 1      | 1      | 0      | 0      | 0      | 0      | 0    | 0              | 0        | 1       | 1     | 0            |
-                        # +--------+--------+--------+--------+--------+--------+--------+------+----------------+----------+---------+-------+--------------+
+                Example:
+                    # +--------+--------+--------+--------+--------+--------+--------+------+----------------+----------+---------+-------+--------------+
+                    # | flag_1 | flag_2 | flag_3 | flag_4 | flag_5 | flag_6 | lesion | lips | night_seizures | onset_21 | staring | jerks | tonic_clonic |
+                    # +--------+--------+--------+--------+--------+--------+--------+------+----------------+----------+---------+-------+--------------+
+                    # | NaN    | NaN    | NaN    | NaN    | NaN    | NaN    | 1      | 0    | 0              | 0        | 0       | 0     | 0            |
+                    # +--------+--------+--------+--------+--------+--------+--------+------+----------------+----------+---------+-------+--------------+
+                    # | 1      | 1      | 1      | 0      | 0      | 0      | 1      | 0    | 0              | 0        | 0       | 0     | 0            |
+                    # +--------+--------+--------+--------+--------+--------+--------+------+----------------+----------+---------+-------+--------------+
+                    # | 1      | 1      | 1      | 0      | 0      | 0      | 0      | 0    | 0              | 0        | 1       | 1     | 0            |
+                    # +--------+--------+--------+--------+--------+--------+--------+------+----------------+----------+---------+-------+--------------+
     """
 
     nlp = spacy.load("en_core_web_sm")
