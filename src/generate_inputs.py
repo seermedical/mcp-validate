@@ -159,42 +159,33 @@ def transform_input(input_dict: Mapping[str, Mapping[str, str]]) -> np.ndarray:
             np.ndarray: Input array where rows represent each patient, and columns
                 represent each input (i.e. question).
                 Inputs are as follows:
-                    Input 1 - Did skin turn pale before event?
-                    Input 2 - Before event included urination or defacation, AND event included loss of
-                                consciousness.
-                    Input 3 - Event duration was < 10 sec, AND event included loss of awareness and
-                                fall / slump
-                    Input 4 - Event duration was > 10 min, AND event included eyes closed
-                    Input 5 - Before event included severe headache
-                    Input 6 - Before event included standing up OR sit up OR posture change OR coughing
-                                OR pain, AND event included falling
-                    Input 7 - Has grey matter lesion (via imaging)
-                    Input 8 - Event included lip smacking OR chewing
-                    Input 9 - Events are nocturnal-only
-                    Input 10 - Onset >= 21 y.o.
-                    Input 11 - Event duration < 20 sec, AND event included staring OR blank OR unresponsive
-                                OR unaware, AND after event did not include confusion
-                    Input 12 - Before event excluded resting NOR sleeping AND event included jerks
-                    Input 13 - Before event included waking w/in 1 hr OR jerking AND event included
-                                convulsions on both sides, stiffening, jerks
+                Input 1 - Did skin turn pale before event?
+                Input 2 - Before event included urination or defacation, AND event included loss of
+                    consciousness.
+                Input 3 - Event duration was < 10 sec, AND event included loss of awareness and
+                    fall / slump
+                Input 4 - Event duration was > 10 min, AND event included eyes closed
+                Input 5 - Before event included severe headache
+                Input 6 - Before event included standing up OR sit up OR posture change OR coughing
+                    OR pain, AND event included falling
 
-                    Elements are represented as NaN = no data, 0 = 'no', or 1 = 'yes'.
+                Elements are represented as NaN = no data, 0 = 'no', or 1 = 'yes'.
                 Example:
-                    # +--------+--------+--------+--------+--------+--------+--------+------+----------------+----------+---------+-------+--------------+
-                    # | flag_1 | flag_2 | flag_3 | flag_4 | flag_5 | flag_6 | lesion | lips | night_seizures | onset_21 | staring | jerks | tonic_clonic |
-                    # +--------+--------+--------+--------+--------+--------+--------+------+----------------+----------+---------+-------+--------------+
-                    # | NaN    | NaN    | NaN    | NaN    | NaN    | NaN    | 1      | 0    | 0              | 0        | 0       | 0     | 0            |
-                    # +--------+--------+--------+--------+--------+--------+--------+------+----------------+----------+---------+-------+--------------+
-                    # | 1      | 1      | 1      | 0      | 0      | 0      | 1      | 0    | 0              | 0        | 0       | 0     | 0            |
-                    # +--------+--------+--------+--------+--------+--------+--------+------+----------------+----------+---------+-------+--------------+
-                    # | 1      | 1      | 1      | 0      | 0      | 0      | 0      | 0    | 0              | 0        | 1       | 1     | 0            |
-                    # +--------+--------+--------+--------+--------+--------+--------+------+----------------+----------+---------+-------+--------------+
+                    # +--------+--------+--------+--------+--------+--------+
+                    # | flag_1 | flag_2 | flag_3 | flag_4 | flag_5 | flag_6 |
+                    # +--------+--------+--------+--------+--------+--------+
+                    # | NaN    | NaN    | NaN    | NaN    | NaN    | NaN    |
+                    # +--------+--------+--------+--------+--------+--------+
+                    # | 1      | 1      | 1      | NaN    | 0      | 0      |
+                    # +--------+--------+--------+--------+--------+--------+
+                    # | 1      | 1      | 0      | 0      | 1      | 1      |
+                    # +--------+--------+--------+--------+--------+--------+
     """
 
     nlp = spacy.load("en_core_web_sm")
 
     # Init (transformed) One Hot Encoded input array
-    input_array = np.zeros(len(input_dict), 13)
+    input_array = np.zeros([len(input_dict), 13])
 
     for row_idx, patient_dict in enumerate(input_dict.values()):
 
@@ -208,6 +199,5 @@ def transform_input(input_dict: Mapping[str, Mapping[str, str]]) -> np.ndarray:
                 nlp, patient_dict, keywords_dict
             )
 
-    input_array = input_array.astype(int)
-
+    input_array = input_array.astype(float)
     return input_array
