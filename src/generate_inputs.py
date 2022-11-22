@@ -6,7 +6,7 @@ to a One Hot Encoded matrix of input data.
 from typing import List, Mapping, Union
 
 import numpy as np
-import spacy
+import re
 
 QUESTIONS_DICT = {
     "before": [
@@ -25,11 +25,17 @@ QUESTIONS_DICT = {
 
 KEYWORDS_DICT = {
     0: {
-        "before": ["pale", "white", "dizzy", "dissy", "vertigo", ("light", "head")],
+        "before": [
+            "pale",
+            "white",
+            "vertigo",
+            r"di(zz|ss)y",
+            r"light[ -]?head(ed)?",
+        ],
     },
     1: {
         "before": ["toilet", "restroom"],
-        "during": ["conscious", "fall", "aware", "faint", "blackout", ("black", "out")],
+        "during": ["conscious", "fall", "aware", "faint", r"black(ed|ing)?[ -]?out"],
     },
     2: {"during": ["collapse", "droop", "slump"]},
     3: {
@@ -39,14 +45,14 @@ KEYWORDS_DICT = {
             "more than 15 minutes",
         ],
     },
-    4: {"before": ["headache", "migraine", ("head", "ache")]},
+    4: {"before": ["migraine", r"head ?ache"]},
     5: {"before": ["pain", "cough", "stand"], "during": ["fell", "fall"]},
 }
 
 
 def search_keywords(
-    response_list: List[str],
-    keywords_list: List[Union[str, tuple]],
+    input_text: str,
+    patterns: List[Union[str, tuple]],
 ) -> Union[bool, None]:
     """Determines if any keywords exist in a list of words.
 
@@ -56,31 +62,23 @@ def search_keywords(
     of "black out".
 
     Args:
-        response_list: List of words derived from a patient's response/s.
-        keywords_list: List of keywords to match.
+        input_text: Concatenated string of words from patient's response/s
+        patterns: List of keywords to match.
 
     Returns:
         bool: Returns True if any keywords in list of words, else False.
     """
-    matched_words = []
 
-    for keyword in keywords_list:
-        if type(keyword) == str:
-            matched_words.append(any(keyword in word for word in response_list))
-
-        else:
-            matched_split_words = []
-            for split_word in keyword:
-                matched_split_words.append(
-                    any(split_word in word for word in response_list)
-                )
-            matched_words.append(all(matched_split_words))
-
-    return any(matched_words)
+    while True:
+        for pattern in patterns:
+            # Search for Regex pattern
+            pattern_exists = re.search(re.compile(pattern), input_text)
+            if pattern_exists:
+                return True
+        return False
 
 
 def matches_criteria(
-    nlp: spacy.language.Language,
     response_dict: Mapping[str, str],
     keywords_dict: Mapping[str, List[Union[str, tuple]]],
 ) -> bool:
@@ -115,7 +113,7 @@ def matches_criteria(
     matched_criteria = []
 
     # Filter response_dict (patient's responses) to relevant questions only
-    for criteria, keywords_list in keywords_dict.items():
+    for criteria, patterns in keywords_dict.items():
         relevant_questions = QUESTIONS_DICT[criteria]
         relevant_responses = {
             k: v for k, v in response_dict.items() if k in relevant_questions
@@ -125,13 +123,13 @@ def matches_criteria(
             matched_criteria.append(None)
             continue
 
-        # Use Spacy's NLP module to generate a list of strings from patient's responses
-        input_sentences = " ".join(relevant_responses.values())
-        split_words_doc = list(nlp(input_sentences))
-        split_words_lst = set([token.text.lower() for token in split_words_doc])
+        # Add all responses to a single string
+        input_text = " ".join(relevant_responses.values())
+        # From the single string, remove punctuation and cast to lower case
+        input_text = re.sub(r"[^\w\s]", "", input_text.lower())
 
         # Search for keywords in patient's responses
-        matched_criteria.append(search_keywords(split_words_lst, keywords_list))
+        matched_criteria.append(search_keywords(input_text, patterns))
 
     # Return None if no responses to relevant questions
     if matched_criteria.count(None) == len(matched_criteria):
@@ -183,8 +181,6 @@ def transform_input(input_dict: Mapping[str, Mapping[str, str]]) -> np.ndarray:
                     # +--------+--------+--------+--------+--------+--------+
     """
 
-    nlp = spacy.load("en_core_web_sm")
-
     # Init (transformed) One Hot Encoded input array
     input_array = np.zeros([len(input_dict), 13])
 
@@ -197,7 +193,7 @@ def transform_input(input_dict: Mapping[str, Mapping[str, str]]) -> np.ndarray:
         for col_idx, keywords_dict in KEYWORDS_DICT.items():
 
             input_array[row_idx, col_idx] = matches_criteria(
-                nlp, patient_dict, keywords_dict
+                patient_dict, keywords_dict
             )
 
     return input_array.astype(float)
