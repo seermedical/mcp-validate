@@ -86,12 +86,12 @@ def get_predicted_output(input_array: np.ndarray) -> np.ndarray:
     Returns:
         predicted_output: Output array where rows represent patients and columns represent
             predicted diagnosis (i.e. output classes). Outputs are as follows:
-            output_1 - Indeterminate
-            output_2 - Non-epileptic
-            output_3 - Epileptic
-            output_4 - Focal
-            output_5 - Generalized
-            output_6 - Unknown Onset
+            Output 1 - Indeterminate
+            Output 2 - Non-epileptic
+            Output 3 - Epileptic
+            Output 4 - Focal
+            Output 5 - Generalized
+            Output 6 - Unknown Onset
 
             Elements are represented as 0 = negative diagnosis, or 1 = positive diagnosis. N.b. A
             patient may have multiple diagnoses.
@@ -142,12 +142,12 @@ def get_true_output(input_billing_codes: Mapping[str, Sequence[str]]) -> np.ndar
     Returns:
         true_output: Output array where rows represent patients and columns represent
             true diagnosis. Output classes are as follows:
-            output_1 - Indeterminate
-            output_2 - Non-epileptic
-            output_3 - Epileptic
-            output_4 - Focal
-            output_5 - Generalized
-            output_6 - Unknown Onset
+            Output 1 - Indeterminate
+            Output 2 - Non-epileptic
+            Output 3 - Epileptic
+            Output 4 - Focal
+            Output 5 - Generalized
+            Output 6 - Unknown Onset
 
             Elements are represented as 0 = negative diagnosis, or 1 = positive diagnosis. N.b. A
             patient may have multiple diagnoses.
