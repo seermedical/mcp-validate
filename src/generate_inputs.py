@@ -40,7 +40,7 @@ KEYWORDS_DICT = {
     },
     4: {"before": ["headache", "migraine", ("head", "ache")]},
     5: {"before": ["pain", "cough", "stand"], "during": ["fell", "fall"]},
-}  # TODO: check with MCPV team that format is in str
+}
 
 
 def search_keywords(
