@@ -55,7 +55,7 @@ def set_diagnosis(list_of_billing_codes: Sequence[str]) -> np.ndarray:
 
 
 def has_undefined_values(input_array: np.ndarray, threshold: int = 3) -> bool:
-    """Counts if number of NaNs in a given array is above a given threshold.
+    """Checks if an array has enough valid data given a threshold.
 
     Returns:
         bool: Returns True if n of NaN elements exceeds threshold, and False if
@@ -84,26 +84,26 @@ def get_predicted_output(input_array: np.ndarray) -> np.ndarray:
     Returns:
         predicted_output: Output array where rows represent patients and columns represent
             predicted diagnosis (i.e. output classes). Outputs are as follows:
-            output_1 - Indeterminate
-            output_2 - Non-epileptic
-            output_3 - Epileptic
-            output_4 - Focal
-            output_5 - Generalized
-            output_6 - Unknown Onset
+            output_1 - Non-epileptic paroxysmal event
+            output_2 - Epileptic
+            output_3 - Focal
+            output_4 - Generalized
+            output_5 - Absence
+            output_6 - Myoclonic
+            output_7 - GTCS (Generalized Tonic Clonic Seizures)
 
             Elements are represented as 0 = negative diagnosis, or 1 = positive diagnosis. N.b. A
             patient may have multiple diagnoses.
             # Example:
-                # +--------------+--------------+----------+-------+-------------+---------+
-                # indeterminate  | non_epilepsy | epilepsy | focal | generalized | unknown |
-                # +--------------+--------------+----------+-------+-------------+---------+
-                # | 1            | 0            | 0        | 0     | 0           | 0       |
-                # +--------------+--------------+----------+-------+-------------+---------+
-                # | 0            | 0            | 1        | 1     | 0           | 0       |
-                # +--------------+--------------+----------+-------+-------------+---------+
-                # | 0            | 0            | 1        | 0     | 1           | 0       |
-                # +--------------+--------------+----------+-------+-------------+---------+
-
+            # +--------------+----------+-------+-------------+---------+
+            # | non_epilepsy | epilepsy | focal | generalized | unknown |
+            # +--------------+----------+-------+-------------+---------+
+            # | 0            | 0        | 0     | 0           | 0       |
+            # +--------------+----------+-------+-------------+---------+
+            # | 0            | 1        | 1     | 0           | 0       |
+            # +--------------+----------+-------+-------------+---------+
+            # | 0            | 1        | 0     | 1           | 0       |
+            # +--------------+----------+-------+-------------+---------+
     """
 
     n_rows = input_array.shape[0]
@@ -111,7 +111,6 @@ def get_predicted_output(input_array: np.ndarray) -> np.ndarray:
     # create an output array
     predicted_output = np.zeros((n_rows, 8))
 
-    # TODO: change logic to use indeterminate if NaNs
     for idx in range(n_rows):
 
         row = input_array[idx, :]
@@ -123,12 +122,12 @@ def get_predicted_output(input_array: np.ndarray) -> np.ndarray:
         # Block 1
         # Epilepsy vs Non-Epilepsy
         if has_undefined_values(input_block_1, threshold=3):
-            predicted_output[idx, 0] = 1  # indeterminate
+            continue
 
         if has_positive_values(input_block_1):
-            predicted_output[idx, 1] = 1  # non-epilepsy
+            predicted_output[idx, 0] = 1  # non-epilepsy
         else:
-            predicted_output[idx, 2] = 1  # epilepsy
+            predicted_output[idx, 1] = 1  # epilepsy
 
         # Block 2
         # Focal vs Generalised
@@ -136,7 +135,7 @@ def get_predicted_output(input_array: np.ndarray) -> np.ndarray:
             continue
 
         if has_positive_values(row[9]) or has_positive_values(input_block_2):
-            predicted_output[idx, 3] = 1  # focal diagnosis
+            predicted_output[idx, 2] = 1  # focal diagnosis
             continue
 
         # Block 3
@@ -145,16 +144,27 @@ def get_predicted_output(input_array: np.ndarray) -> np.ndarray:
         if has_undefined_values(input_block_3, threshold=2):
             continue
 
-        if has_positive_values(input_block_3):
-            predicted_output[idx, 4] = 1  # generalised
-        else:
-            predicted_output[idx, 5] = 1  # unknown onset
+        if not has_positive_values(input_block_3):
+            predicted_output[idx, 7] = 1  # unknown onset
+            continue
+
+        if has_positive_values(row[10]):
+            predicted_output[idx, 4] = 1  # absence
+
+        if has_positive_values(row[11]):
+            predicted_output[idx, 5] = 1  # myoclonic
+
+        if has_positive_values(row[12]):
+            predicted_output[idx, 6] = 1  # gtcs
+
+        if has_positive_values(predicted_output[4:7]):
+            predicted_output[idx, 3] = 1  # generalised
 
     return predicted_output
 
 
 def get_true_output(input_billing_codes: Mapping[str, Sequence[str]]) -> np.ndarray:
-    """Defines diagnosis class for each patient based on the patient's billing code/s.
+    """Defines diagnosis for each patient based on a set of billing codes.
 
     Args:
         input_billing_codes: Dictionary of patients' billing codes.
@@ -162,25 +172,26 @@ def get_true_output(input_billing_codes: Mapping[str, Sequence[str]]) -> np.ndar
     Returns:
         true_output: Output array where rows represent patients and columns represent
             true diagnosis. Outputs are as follows:
-            output_1 - Indeterminate
-            output_2 - Non-epileptic
-            output_3 - Epileptic
-            output_4 - Focal
-            output_5 - Generalized
-            output_6 - Unknown Onset
+            output_1 - Non-epileptic paroxysmal event
+            output_2 - Epileptic
+            output_3 - Focal
+            output_4 - Generalized
+            output_5 - Absence
+            output_6 - Myoclonic
+            output_7 - GTCS (Generalized Tonic Clonic Seizures)
 
             Elements are represented as 0 = negative diagnosis, or 1 = positive diagnosis. N.b. A
             patient may have multiple diagnoses.
             # Example:
-                # +--------------+--------------+----------+-------+-------------+---------+
-                # indeterminate  | non_epilepsy | epilepsy | focal | generalized | unknown |
-                # +--------------+--------------+----------+-------+-------------+---------+
-                # | 0            | 0            | 0        | 0     | 0           | 0       |
-                # +--------------+--------------+----------+-------+-------------+---------+
-                # | 0            | 0            | 1        | 1     | 0           | 0       |
-                # +--------------+--------------+----------+-------+-------------+---------+
-                # | 0            | 0            | 1        | 0     | 1           | 0       |
-                # +--------------+--------------+----------+-------+-------------+---------+
+            # +--------------+----------+-------+-------------+---------+
+            # | non_epilepsy | epilepsy | focal | generalized | unknown |
+            # +--------------+----------+-------+-------------+---------+
+            # | 0            | 0        | 0     | 0           | 0       |
+            # +--------------+----------+-------+-------------+---------+
+            # | 0            | 1        | 1     | 0           | 0       |
+            # +--------------+----------+-------+-------------+---------+
+            # | 0            | 1        | 0     | 1           | 0       |
+            # +--------------+----------+-------+-------------+---------+
     """
 
     patient_keys = input_billing_codes.keys()
