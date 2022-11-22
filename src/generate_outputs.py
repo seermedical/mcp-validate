@@ -171,27 +171,28 @@ def get_true_output(input_billing_codes: Mapping[str, Sequence[str]]) -> np.ndar
 
     Returns:
         true_output: Output array where rows represent patients and columns represent
-            true diagnosis. Outputs are as follows:
-            output_1 - Non-epileptic paroxysmal event
-            output_2 - Epileptic
-            output_3 - Focal
-            output_4 - Generalized
-            output_5 - Absence
-            output_6 - Myoclonic
-            output_7 - GTCS (Generalized Tonic Clonic Seizures)
+            true diagnosis. Output classes are as follows:
+            Output 1 - Non-epileptic paroxysmal event
+            Output 2 - Epileptic
+            Output 3 - Focal
+            Output 4 - Generalized
+            Output 5 - Absence
+            Output 6 - Myoclonic
+            Output 7 - GTCS (Generalized Tonic Clonic Seizures)
 
             Elements are represented as 0 = negative diagnosis, or 1 = positive diagnosis. N.b. A
             patient may have multiple diagnoses.
-            # Example:
-            # +--------------+----------+-------+-------------+---------+
-            # | non_epilepsy | epilepsy | focal | generalized | unknown |
-            # +--------------+----------+-------+-------------+---------+
-            # | 0            | 0        | 0     | 0           | 0       |
-            # +--------------+----------+-------+-------------+---------+
-            # | 0            | 1        | 1     | 0           | 0       |
-            # +--------------+----------+-------+-------------+---------+
-            # | 0            | 1        | 0     | 1           | 0       |
-            # +--------------+----------+-------+-------------+---------+
+
+            Example:
+                # +--------------+----------+-------+-------------+---------+
+                # | non_epilepsy | epilepsy | focal | generalized | unknown |
+                # +--------------+----------+-------+-------------+---------+
+                # | 0            | 0        | 0     | 0           | 0       |
+                # +--------------+----------+-------+-------------+---------+
+                # | 0            | 1        | 1     | 0           | 0       |
+                # +--------------+----------+-------+-------------+---------+
+                # | 0            | 1        | 0     | 1           | 0       |
+                # +--------------+----------+-------+-------------+---------+
     """
 
     patient_keys = input_billing_codes.keys()
