@@ -113,7 +113,6 @@ def get_predicted_output(input_array: np.ndarray) -> np.ndarray:
     # create an output array
     predicted_output = np.zeros((n_rows, 8))
 
-    # TODO: change logic to use indeterminate if NaNs
     for idx in range(n_rows):
         row = input_array[idx, :]
 
