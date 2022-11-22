@@ -141,7 +141,7 @@ def get_true_output(input_billing_codes: Mapping[str, Sequence[str]]) -> np.ndar
 
     Returns:
         true_output: Output array where rows represent patients and columns represent
-            true diagnosis. Outputs are as follows:
+            true diagnosis. Output classes are as follows:
             output_1 - Indeterminate
             output_2 - Non-epileptic
             output_3 - Epileptic
