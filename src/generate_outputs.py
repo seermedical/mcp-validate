@@ -4,16 +4,18 @@ Script of functions to generate input matrix.
 from typing import Mapping, Sequence
 import numpy as np
 
-FOCAL_EPILEPSY_BILLING_CODES = ["G40.0", "G40.1", "G40.2", "G40.5", "G41.2"]
-GENERALISED_EPILEPSY_BILLING_CODES = [
-    "G40.7",
-    "G41.1",
-    "G40.3",
-    "G40.6",
-    "G41.0",
-    "G40.4",
-]
-UNKNOWN_EPILEPSY_BILLING_CODES = ["G40.8", "G40.9", "G41.8", "G41.9"]
+BILLING_CODES = {
+    "focal": ["G40.0", "G40.1", "G40.2", "G40.5", "G41.2"],
+    "generalised": [
+        "G40.7",
+        "G41.1",
+        "G40.3",
+        "G40.6",
+        "G41.0",
+        "G40.4",
+    ],
+    "unknown": ["G40.8", "G40.9", "G41.8", "G41.9"],
+}
 
 
 def set_diagnosis(list_of_billing_codes: Sequence[str]) -> np.ndarray:
@@ -35,9 +37,9 @@ def set_diagnosis(list_of_billing_codes: Sequence[str]) -> np.ndarray:
     # Populate rows
     for i, billing_code_category in enumerate(
         [
-            FOCAL_EPILEPSY_BILLING_CODES,
-            GENERALISED_EPILEPSY_BILLING_CODES,
-            UNKNOWN_EPILEPSY_BILLING_CODES,
+            BILLING_CODES["focal"],
+            BILLING_CODES["generalised"],
+            BILLING_CODES["unknown"],
         ]
     ):
         if any(
@@ -84,12 +86,12 @@ def get_predicted_output(input_array: np.ndarray) -> np.ndarray:
     Returns:
         predicted_output: Output array where rows represent patients and columns represent
             predicted diagnosis (i.e. output classes). Outputs are as follows:
-            output_1 - Indeterminate
-            output_2 - Non-epileptic
-            output_3 - Epileptic
-            output_4 - Focal
-            output_5 - Generalized
-            output_6 - Unknown Onset
+            Output 1 - Indeterminate
+            Output 2 - Non-epileptic
+            Output 3 - Epileptic
+            Output 4 - Focal
+            Output 5 - Generalized
+            Output 6 - Unknown Onset
 
             Elements are represented as 0 = negative diagnosis, or 1 = positive diagnosis. N.b. A
             patient may have multiple diagnoses.
@@ -99,11 +101,10 @@ def get_predicted_output(input_array: np.ndarray) -> np.ndarray:
                 # +--------------+--------------+----------+-------+-------------+---------+
                 # | 1            | 0            | 0        | 0     | 0           | 0       |
                 # +--------------+--------------+----------+-------+-------------+---------+
-                # | 0            | 0            | 1        | 1     | 0           | 0       |
+                # | 0            | 0            | 1        | 0     | 0           | 0       |
                 # +--------------+--------------+----------+-------+-------------+---------+
-                # | 0            | 0            | 1        | 0     | 1           | 0       |
+                # | 0            | 0            | 1        | 0     | 0           | 0       |
                 # +--------------+--------------+----------+-------+-------------+---------+
-
     """
 
     n_rows = input_array.shape[0]
@@ -113,42 +114,21 @@ def get_predicted_output(input_array: np.ndarray) -> np.ndarray:
 
     # TODO: change logic to use indeterminate if NaNs
     for idx in range(n_rows):
-
         row = input_array[idx, :]
 
-        input_block_1 = row[0:6]
-        input_block_2 = row[6:9]
-        input_block_3 = row[10:13]
-
-        # Block 1
-        # Epilepsy vs Non-Epilepsy
-        if has_undefined_values(input_block_1, threshold=3):
-            predicted_output[idx, 0] = 1  # indeterminate
-
-        if has_positive_values(input_block_1):
-            predicted_output[idx, 1] = 1  # non-epilepsy
+        # No data
+        if has_undefined_values(row, threshold=1):
+            continue
+        # Indeterminate
+        if has_undefined_values(row, threshold=3):
+            predicted_output[idx, 0] = 1
+        # Epilepsy vs Non-epilepsy
+        if has_positive_values(row):
+            # Non-epilepsy
+            predicted_output[idx, 1] = 1
         else:
-            predicted_output[idx, 2] = 1  # epilepsy
-
-        # Block 2
-        # Focal vs Generalised
-        if has_undefined_values(input_block_2, threshold=2):
-            continue
-
-        if has_positive_values(row[9]) or has_positive_values(input_block_2):
-            predicted_output[idx, 3] = 1  # focal diagnosis
-            continue
-
-        # Block 3
-        # Generalised vs Unknown Onset
-        # TODO: Check with Mark that we can't differentiate focal from general ?
-        if has_undefined_values(input_block_3, threshold=2):
-            continue
-
-        if has_positive_values(input_block_3):
-            predicted_output[idx, 4] = 1  # generalised
-        else:
-            predicted_output[idx, 5] = 1  # unknown onset
+            # Epilepsy
+            predicted_output[idx, 2] = 1
 
     return predicted_output
 
@@ -161,13 +141,13 @@ def get_true_output(input_billing_codes: Mapping[str, Sequence[str]]) -> np.ndar
 
     Returns:
         true_output: Output array where rows represent patients and columns represent
-            true diagnosis. Outputs are as follows:
-            output_1 - Indeterminate
-            output_2 - Non-epileptic
-            output_3 - Epileptic
-            output_4 - Focal
-            output_5 - Generalized
-            output_6 - Unknown Onset
+            true diagnosis. Output classes are as follows:
+            Output 1 - Indeterminate
+            Output 2 - Non-epileptic
+            Output 3 - Epileptic
+            Output 4 - Focal
+            Output 5 - Generalized
+            Output 6 - Unknown Onset
 
             Elements are represented as 0 = negative diagnosis, or 1 = positive diagnosis. N.b. A
             patient may have multiple diagnoses.
@@ -175,7 +155,7 @@ def get_true_output(input_billing_codes: Mapping[str, Sequence[str]]) -> np.ndar
                 # +--------------+--------------+----------+-------+-------------+---------+
                 # indeterminate  | non_epilepsy | epilepsy | focal | generalized | unknown |
                 # +--------------+--------------+----------+-------+-------------+---------+
-                # | 0            | 0            | 0        | 0     | 0           | 0       |
+                # | 1            | 0            | 0        | 0     | 0           | 0       |
                 # +--------------+--------------+----------+-------+-------------+---------+
                 # | 0            | 0            | 1        | 1     | 0           | 0       |
                 # +--------------+--------------+----------+-------+-------------+---------+
