@@ -1,5 +1,6 @@
 """
-Script of functions to generate predicted and true output matrices.
+Script of functions to intake a dictionary of input data and transform
+to a One Hot Encoded matrix of input data.
 """
 
 from typing import List, Mapping, Union
@@ -144,7 +145,7 @@ def transform_input(input_dict: Mapping[str, Mapping[str, str]]) -> np.ndarray:
     One Hot Encoded matrix."
 
         Args:
-            input_dict (dict): Dictionary where keys represent a patient,
+            input_dict: Dictionary where keys represent a patient,
                 enclosing another dictionary of key (question), value (answer) pairs.
                 N.b. If no value (answer), to a key (question), an empty string is expected.
                 Example:
@@ -156,7 +157,7 @@ def transform_input(input_dict: Mapping[str, Mapping[str, str]]) -> np.ndarray:
                         }
                     }
         Returns:
-            np.ndarray: Input array where rows represent each patient, and columns
+            input_array: Array of input data where rows represent each patient, and columns
                 represent each input (i.e. question).
                 Inputs are as follows:
                 Input 1 - Did skin turn pale before event?
@@ -199,5 +200,4 @@ def transform_input(input_dict: Mapping[str, Mapping[str, str]]) -> np.ndarray:
                 nlp, patient_dict, keywords_dict
             )
 
-    input_array = input_array.astype(float)
-    return input_array
+    return input_array.astype(float)

@@ -1,5 +1,5 @@
 """
-Script of functions to generate input matrix.
+Script of functions to generate predicted and true output classes.
 """
 from typing import Mapping, Sequence
 import numpy as np
@@ -85,7 +85,7 @@ def get_predicted_output(input_array: np.ndarray) -> np.ndarray:
 
     Returns:
         predicted_output: Output array where rows represent patients and columns represent
-            predicted diagnosis (i.e. output classes). Outputs are as follows:
+            predicted diagnosis. Outputs classes are as follows:
             Output 1 - Indeterminate
             Output 2 - Non-epileptic
             Output 3 - Epileptic
