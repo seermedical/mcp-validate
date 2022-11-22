@@ -52,7 +52,7 @@ KEYWORDS_DICT = {
 
 def search_keywords(
     input_text: str,
-    patterns: List[Union[str, tuple]],
+    patterns: List[str],
 ) -> Union[bool, None]:
     """Determines if any keywords exist in a list of words.
 
