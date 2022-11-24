@@ -47,6 +47,7 @@ def run(
     predicted_output = get_predicted_output(input_array)
     true_output = get_true_output(input_billing_codes)
 
+    # Get metrics
     accuracy = get_accuracy(predicted_output, true_output, normalize=False)
 
     return
