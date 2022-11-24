@@ -8,16 +8,36 @@ Online tool: epipick.org
 Authors: Dominique Eden & Pip Karoly
 """
 
-from typing import Mapping, Sequence
+import argparse
+import json
+from typing import Mapping, Optional
 
 from src.generate_inputs import transform_input
 from src.generate_outputs import get_predicted_output, get_true_output
 
 
+def read_json(path: str) -> Mapping:
+    """Reads JSON file and returns a dict.
+
+    Args:
+        path: Absolute path to JSON file.
+
+    Returns:
+        data: Dictionary of data read from JSON file.
+    """
+
+    with open(path, "r") as f:
+        data = json.load(f)
+    return data
+
+
 def run(
-    input_data: Mapping[str, Mapping[str, str]],
-    input_billing_codes: Mapping[str, Sequence[str]],
+    input_data_file: str, input_billing_codes_file: str, output_path: Optional[str]
 ) -> None:
+
+    input_data, input_billing_codes = read_json(input_data_file), read_json(
+        input_billing_codes_file
+    )
 
     # Get input array
     input_array = transform_input(input_data)
@@ -31,8 +51,21 @@ def run(
 
 if __name__ == "__main__":
 
-    # Create mock input data
-    mock_input = {"patient_1": {"question_1": "answer_1"}}
-    mock_diagnosis = {"patient_1": ["billing_code_1", "billing_code_2"]}
+    parser = argparse.ArgumentParser(
+        prog="EpiPickModelValidation",
+        description="Validation of EpiPick Model against Mayo Clinic Platform data.",
+    )
+    parser.add_argument(
+        "--input_data_file",
+        required=True,
+        help="Path to JSON file storing patient responses.",
+    )
+    parser.add_argument(
+        "--input_billing_codes_file",
+        help="Path to JSON file storing patient ICD-10 billing codes.",
+    )
+    parser.add_argument("-o", "--output_path", help="Path to save outputs.")
 
-    run(mock_input, mock_diagnosis)
+    args = parser.parse_args()
+
+    run(args.input_data, args.input_billing_codes, args.output_path)
