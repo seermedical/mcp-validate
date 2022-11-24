@@ -14,6 +14,7 @@ from typing import Mapping, Optional
 
 from src.generate_inputs import transform_input
 from src.generate_outputs import get_predicted_output, get_true_output
+from src.metrics import get_accuracy
 
 
 def read_json(path: str) -> Mapping:
@@ -45,6 +46,8 @@ def run(
     # Run model
     predicted_output = get_predicted_output(input_array)
     true_output = get_true_output(input_billing_codes)
+
+    accuracy = get_accuracy(predicted_output, true_output, normalize=False)
 
     return
 
