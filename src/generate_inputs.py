@@ -3,7 +3,7 @@ Script of functions to intake a dictionary of input data and transform
 to a One Hot Encoded matrix of input data.
 """
 
-from typing import List, Mapping, Union
+from typing import Dict, List, Union
 
 import numpy as np
 import re
@@ -79,8 +79,8 @@ def search_keywords(
 
 
 def matches_criteria(
-    response_dict: Mapping[str, str],
-    keywords_dict: Mapping[str, List[Union[str, tuple]]],
+    response_dict: Dict[str, str],
+    keywords_dict: Dict[str, List[Union[str, tuple]]],
 ) -> bool:
     """Determines if patient reponses fill given criteria for a particular input.
 
@@ -138,7 +138,7 @@ def matches_criteria(
     return all(matched_criteria)
 
 
-def transform_input(input_dict: Mapping[str, Mapping[str, str]]) -> np.ndarray:
+def transform_input(input_dict: Dict[str, Dict[str, str]]) -> np.ndarray:
     """Takes dictionary of patient responses and generates a
     One Hot Encoded matrix."
 

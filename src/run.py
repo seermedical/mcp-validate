@@ -10,13 +10,13 @@ Authors: Dominique Eden & Pip Karoly
 
 import argparse
 import json
-from typing import Mapping, Optional
+from typing import Dict, Optional
 
 from src.generate_inputs import transform_input
 from src.generate_outputs import get_predicted_output, get_true_output
 
 
-def read_json(path: str) -> Mapping:
+def read_json(path: str) -> Dict:
     """Reads JSON file and returns a dict.
 
     Args:
