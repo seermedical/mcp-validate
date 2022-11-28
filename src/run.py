@@ -23,7 +23,7 @@ def read_json(path: str) -> Dict:
         path: Absolute path to JSON file.
 
     Returns:
-        data: Dictionary of data read from JSON file.
+        dict: Dictionary of data read from JSON file.
     """
 
     with open(path, "r") as f:
