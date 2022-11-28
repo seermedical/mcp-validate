@@ -1,6 +1,5 @@
 import numpy as np
 import pytest
-import spacy
 
 from src.generate_inputs import matches_criteria, KEYWORDS_DICT, transform_input
 
@@ -80,8 +79,6 @@ class TestGetInputValues:
     no answer respectively.
     """
 
-    nlp = spacy.load("en_core_web_sm")
-
     @pytest.mark.parametrize(
         "mock_response_dict, expected_result",
         [
@@ -106,7 +103,6 @@ class TestGetInputValues:
         """
 
         result = matches_criteria(
-            nlp=self.nlp,
             response_dict=mock_response_dict["patient_id"],
             keywords_dict=KEYWORDS_DICT[0],
         )
@@ -132,7 +128,6 @@ class TestGetInputValues:
         """
 
         result = matches_criteria(
-            nlp=self.nlp,
             response_dict=mock_response_dict["patient_id"],
             keywords_dict=KEYWORDS_DICT[1],
         )
