@@ -10,26 +10,24 @@ Authors: Dominique Eden & Pip Karoly
 
 import argparse
 import json
-from typing import Mapping, Optional
+from typing import Dict, Optional
 
-from src.generate_inputs import transform_input
-from src.generate_outputs import get_predicted_output, get_true_output
-from src.metrics import get_accuracy
+from generate_inputs import transform_input
+from generate_outputs import get_predicted_output, get_true_output
 
 
-def read_json(path: str) -> Mapping:
+def read_json(path: str) -> Dict:
     """Reads JSON file and returns a dict.
 
     Args:
         path: Absolute path to JSON file.
 
     Returns:
-        data: Dictionary of data read from JSON file.
+        dict: Dictionary of data read from JSON file.
     """
 
     with open(path, "r") as f:
-        data = json.load(f)
-    return data
+        return json.load(f)
 
 
 def run(
@@ -60,16 +58,17 @@ if __name__ == "__main__":
         description="Validation of EpiPick Model against Mayo Clinic Platform data.",
     )
     parser.add_argument(
-        "--input_data_file",
-        required=True,
+        "input_responses_file",
         help="Path to JSON file storing patient responses.",
     )
     parser.add_argument(
-        "--input_billing_codes_file",
+        "input_billing_codes_file",
         help="Path to JSON file storing patient ICD-10 billing codes.",
     )
-    parser.add_argument("-o", "--output_path", help="Path to save outputs.")
+    parser.add_argument(
+        "-o", "--output_path", default=".", help="Path to save outputs."
+    )
 
     args = parser.parse_args()
 
-    run(args.input_data, args.input_billing_codes, args.output_path)
+    run(args.input_responses_file, args.input_billing_codes_file, args.output_path)
