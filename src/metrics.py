@@ -57,7 +57,6 @@ def get_metrics(predicted_array: np.ndarray, true_array: np.ndarry):
         dict: A dictionary of summary and performance statistics.
     """
 
-    # Evaluation 1: Run metrics for epilepsy vs non-epilepsy only
     pred_output = predicted_array[:, 1:3]
     true_output = true_array[:, 1:3]
 
