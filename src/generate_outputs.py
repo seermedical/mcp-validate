@@ -1,7 +1,7 @@
 """
 Script of functions to generate predicted and true output classes.
 """
-from typing import Mapping, Sequence
+from typing import Dict, Sequence
 import numpy as np
 import re
 
@@ -134,7 +134,7 @@ def get_predicted_output(input_array: np.ndarray) -> np.ndarray:
     return predicted_output
 
 
-def get_true_output(input_billing_codes: Mapping[str, Sequence[str]]) -> np.ndarray:
+def get_true_output(input_billing_codes: Dict[str, Sequence[str]]) -> np.ndarray:
     """Defines diagnosis class for each patient based on the patient's billing code/s.
 
     Args:
