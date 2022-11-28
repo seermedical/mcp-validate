@@ -61,7 +61,7 @@ def get_metrics(predicted_array: np.ndarray, true_array: np.ndarry):
     pred_output = predicted_array[:, 1:3]
     true_output = true_array[:, 1:3]
 
-    metrics = {
+    return {
         "Name": "Evaluation 1",
         "Description": "Metrics for Epilepsy vs Non-Epilepsy classes.",
         "Summary": {
@@ -98,5 +98,3 @@ def get_metrics(predicted_array: np.ndarray, true_array: np.ndarry):
             },
         },
     }
-
-    return metrics
