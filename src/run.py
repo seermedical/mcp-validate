@@ -27,8 +27,7 @@ def read_json(path: str) -> Mapping:
     """
 
     with open(path, "r") as f:
-        data = json.load(f)
-    return data
+        return json.load(f)
 
 
 def run(
