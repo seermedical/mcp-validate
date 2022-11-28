@@ -3,22 +3,31 @@ from sklearn.metrics import accuracy_score, balanced_accuracy_score
 from typing import Dict
 
 
-def get_counts(array_slice: np.ndarray) -> Dict:
-    """Returns Dict object of counts of 0s, 1s, and NaNs
-    in a given column of an array.
+def get_responses_counts(question: str, input_dict: Dict) -> Dict:
+    """Returns the count of patients that have a responded
+    to a selected question.
+
+    Args
+        question: Question to select.
+        input_dict: Input data of patient's responses.
+
+    Returns
+        int: Total number of responses to the selected question.
+    """
+    return len([patient[question] for patient in input_dict if patient[""]])
+
+
+def get_diagnosis_counts(output_array: np.ndarray, col_idx: int) -> int:
+    """Returns count of 1s indicating a positive diagnosis.
 
     Args:
         array_slice: An nx1 array, i.e. column of array,
             to count over.
 
     Returns:
-        dict: A dict of counts."""
+        int: Total of counts."""
 
-    return {
-        0: np.count_nonzero(array_slice == 0),
-        1: np.count_nonzero(array_slice == 1),
-        np.nan: np.count_nonzero(np.isnan(array_slice)),
-    }
+    return np.count_nonzero(output_array[:, col_idx] == 1)
 
 
 def get_accuracy(
@@ -45,13 +54,14 @@ def get_accuracy(
     return score
 
 
-def get_metrics(predicted_array: np.ndarray, true_array: np.ndarry):
+def get_metrics(input_dict: Dict, predicted_array: np.ndarray, true_array: np.ndarray):
     """Computes and returns a high-level statistical summary and
     performance metrics.
 
     Args:
-        predicted_array: Predicted output of diagnoses.
-        true_array: True output of diagnoses.
+        input_dict: Input data of patient's responses.
+        predicted_array: Predicted output of patient's diagnoses.
+        true_array: True output of patient's diagnoses.
 
     Returns:
         dict: A dictionary of summary and performance statistics.
@@ -71,29 +81,38 @@ def get_metrics(predicted_array: np.ndarray, true_array: np.ndarry):
             },
         },
         "Counts": {
-            "predicted": {
-                "indeterminate": get_counts(pred_output[:, 0]),
-                "non_epilepsy": get_counts(pred_output[:, 1]),
-                "epilepsy": get_counts(pred_output[:, 2]),
+            "responses": {
+                "What other things do you experience right before or at the beginning of a seizure?": get_responses_counts(
+                    "What other things do you experience right before or at the beginning of a seizure?",
+                    input_dict,
+                ),
+                "Please describe what you feel right before or at the beginning of a seizure.": 0,
+                "Please specify other warning.": 0,
+                "Which warnings do you get before you have a seizure?": 0,
             },
-            "true": {
-                "indeterminate": get_counts(true_output[:, 0]),
-                "non_epilepsy": get_counts(true_output[:, 1]),
-                "epilepsy": get_counts(true_output[:, 2]),
+            "diagnoses": {
+                "predicted": {
+                    "indeterminate": get_diagnosis_counts(pred_output, 0),
+                    "non_epilepsy": get_diagnosis_counts(pred_output, 1),
+                    "epilepsy": get_diagnosis_counts(pred_output, 2),
+                },
+                "true": {
+                    "indeterminate": get_diagnosis_counts(true_output, 0),
+                    "non_epilepsy": get_diagnosis_counts(true_output, 1),
+                    "epilepsy": get_diagnosis_counts(true_output, 2),
+                },
             },
-            "Performance": {
-                "accuracy": {
-                    "total": get_accuracy(pred_output, true_output),
-                    "percentage": get_accuracy(
-                        pred_output, true_output, normalize=True
-                    ),
-                },
-                "accuracy_balanced": {
-                    "total": get_accuracy(pred_output, true_output, balanced=True),
-                    "percentage": get_accuracy(
-                        pred_output, true_output, balanced=True, normalize=True
-                    ),
-                },
+        },
+        "Performance": {
+            "accuracy": {
+                "total": get_accuracy(pred_output, true_output),
+                "percentage": get_accuracy(pred_output, true_output, normalize=True),
+            },
+            "accuracy_balanced": {
+                "total": get_accuracy(pred_output, true_output, balanced=True),
+                "percentage": get_accuracy(
+                    pred_output, true_output, balanced=True, normalize=True
+                ),
             },
         },
     }
