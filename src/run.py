@@ -12,8 +12,8 @@ import argparse
 import json
 from typing import Dict, Optional
 
-from src.generate_inputs import transform_input
-from src.generate_outputs import get_predicted_output, get_true_output
+from generate_inputs import transform_input
+from generate_outputs import get_predicted_output, get_true_output
 
 
 def read_json(path: str) -> Dict:
@@ -56,13 +56,10 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "input_responses_file",
-        "d",
-        required=True,
         help="Path to JSON file storing patient responses.",
     )
     parser.add_argument(
         "input_billing_codes_file",
-        "b",
         help="Path to JSON file storing patient ICD-10 billing codes.",
     )
     parser.add_argument(
