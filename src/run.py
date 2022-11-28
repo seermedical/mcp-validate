@@ -55,16 +55,20 @@ if __name__ == "__main__":
         description="Validation of EpiPick Model against Mayo Clinic Platform data.",
     )
     parser.add_argument(
-        "--input_data_file",
+        "input_responses_file",
+        "d",
         required=True,
         help="Path to JSON file storing patient responses.",
     )
     parser.add_argument(
-        "--input_billing_codes_file",
+        "input_billing_codes_file",
+        "b",
         help="Path to JSON file storing patient ICD-10 billing codes.",
     )
-    parser.add_argument("-o", "--output_path", help="Path to save outputs.")
+    parser.add_argument(
+        "-o", "--output_path", default=".", help="Path to save outputs."
+    )
 
     args = parser.parse_args()
 
-    run(args.input_data, args.input_billing_codes, args.output_path)
+    run(args.input_responses_file, args.input_billing_codes_file, args.output_path)
