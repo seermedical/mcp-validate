@@ -12,6 +12,7 @@ import argparse
 import json
 from typing import Dict, Optional
 
+from metrics import get_metrics
 from generate_inputs import transform_input
 from generate_outputs import get_predicted_output, get_true_output
 
@@ -46,7 +47,7 @@ def run(
     true_output = get_true_output(input_billing_codes)
 
     # Get metrics
-    accuracy = get_accuracy(predicted_output, true_output, normalize=False)
+    metrics = get_metrics(input_data, predicted_output, true_output, normalize=False)
 
     return
 
