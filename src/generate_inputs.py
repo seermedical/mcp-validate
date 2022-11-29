@@ -156,7 +156,7 @@ def transform_input(input_dict: Dict[str, Dict[str, str]]) -> np.ndarray:
                     }
         Returns:
             np.ndarray: Array of input data where rows represent each patient, and columns
-                represent each input (i.e. question).
+                represent each input.
                 Inputs are as follows:
                 Input 1 - Did skin turn pale before event?
                 Input 2 - Before event included urination or defacation, AND event included loss of
