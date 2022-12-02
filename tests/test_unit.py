@@ -5,6 +5,7 @@ from src.generate_inputs import matches_criteria, KEYWORDS_DICT, transform_input
 
 
 def mock_input_dict_template(
+    patient_id="patient_id",
     response_0="",
     response_1="",
     response_2="",
@@ -15,7 +16,7 @@ def mock_input_dict_template(
     response_7="",
 ):
     return {
-        "patient_id": {
+        patient_id: {
             "What other things do you experience right before or at the beginning of a seizure?": response_0,
             "Please describe what you feel right before or at the beginning of a seizure.": response_1,
             "Please specify other warning.": response_2,
