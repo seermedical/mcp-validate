@@ -23,7 +23,6 @@ def get_inputs_by_diagnosis(
             order of "Indeterminate", "Non Epilepsy" and
             "Epilepsy".
     """
-    # TODO: add for focal, generalised, and unknown
 
     return (
         input_array[np.where(true_array[:, 0] == 1)],
