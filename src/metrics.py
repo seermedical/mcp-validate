@@ -28,7 +28,7 @@ def get_inputs_by_diagnosis(
     return (
         input_array[np.where(true_array[:, 0] == 1)],
         input_array[np.where(true_array[:, 1] == 1)],
-        input_array[np.where(true_array[:, 0] == 2)],
+        input_array[np.where(true_array[:, 2] == 1)],
     )
 
 
@@ -92,34 +92,54 @@ def get_counts(array: np.ndarray, col_idx: int, value: float) -> int:
 
 
 def get_accuracy(
-    predicted_array: np.ndarray,
-    true_array: np.ndarray,
+    pred_labels: np.ndarray,
+    true_labels: np.ndarray,
     balanced: bool = False,
     normalize: bool = False,
 ) -> float:
     """Returns accuracy of predicted output as a percentage.
 
     Args:
-        predicted_array: Predicted output of diagnoses.
-        true_array: True output of diagnoses.
+        pred_labels: Predicted output of diagnoses.
+        true_labels: True output of diagnoses.
 
     Returns:
         score: Percentage of diagnoses that were correctly classified.
     """
+
     if balanced:
-        score = balanced_accuracy_score(y_true=true_array, y_pred=predicted_array)
+        score = balanced_accuracy_score(y_true=true_labels, y_pred=pred_labels)
     else:
         score = accuracy_score(
-            y_true=true_array, y_pred=predicted_array, normalize=normalize
+            y_true=true_labels, y_pred=pred_labels, normalize=normalize
         )
     return score
 
 
+def get_labels(output_array: np.ndarray) -> np.ndarray:
+    """Computes the labels (i.e. n of positive diagnoses)
+    for each classification (i.e. diagnosis).
+
+    Args:
+        output_array: The One Hot Encoded output array to
+            compute labels across.
+
+    Returns:
+        np.ndarray: Labels.
+    """
+    return np.array(
+        [
+            get_counts(output_array, 0, 1),
+            get_counts(output_array, 1, 1),
+            get_counts(output_array, 2, 1),
+        ]
+    )
+
+
 def get_metrics(
-    input_dict: Dict,
     input_array: np.ndarray,
-    predicted_array: np.ndarray,
-    true_array: np.ndarray,
+    pred_output: np.ndarray,
+    true_output: np.ndarray,
 ):
     """Computes and returns a high-level statistical summary and
     performance metrics.
@@ -134,14 +154,14 @@ def get_metrics(
         dict: A dictionary of summary and performance statistics.
     """
 
-    pred_output = predicted_array[:, 1:3]
-    true_output = true_array[:, 1:3]
+    pred_labels = get_labels(pred_output)
+    true_labels = get_labels(true_output)
 
     metrics = {
         "Name": "Evaluation 1",
         "Description": "Metrics for Epilepsy vs Non-Epilepsy classes.",
         "Summary": {
-            "total": {"predicted": pred_output.size, "true": true_output.size},
+            "total": {"predicted": pred_output.shape[0], "true": true_output.shape[0]},
             "total_classes": {
                 "predicted": pred_output.shape[1],
                 "true": true_output.shape[1],
@@ -149,35 +169,32 @@ def get_metrics(
         },
         "Counts": {
             "responses": {},
-            "inputs": {},
+            "inputs": {0: {}, 1: {}, 2: {}, 3: {}, 4: {}, 5: {}},
             "diagnoses": {
                 "predicted": {
-                    "indeterminate": get_counts(pred_output, 0, 1),
-                    "non_epilepsy": get_counts(pred_output, 1, 1),
-                    "epilepsy": get_counts(pred_output, 2, 1),
+                    "indeterminate": pred_labels[0],
+                    "non_epilepsy": pred_labels[1],
+                    "epilepsy": pred_labels[2],
                 },
                 "true": {
-                    "indeterminate": get_counts(true_output, 0, 1),
-                    "non_epilepsy": get_counts(true_output, 1, 1),
-                    "epilepsy": get_counts(true_output, 2, 1),
+                    "indeterminate": true_labels[0],
+                    "non_epilepsy": true_labels[1],
+                    "epilepsy": true_labels[2],
                 },
             },
         },
         "Performance": {
             "accuracy": {
-                "total": get_accuracy(pred_output, true_output),
-                "percentage": get_accuracy(pred_output, true_output, normalize=True),
+                "total": get_accuracy(pred_labels, true_labels),
+                "percentage": get_accuracy(pred_labels, true_labels, normalize=True),
             },
             "accuracy_balanced": {
-                "total": get_accuracy(pred_output, true_output, balanced=True),
-                "percentage": get_accuracy(
-                    pred_output, true_output, balanced=True, normalize=True
-                ),
+                "total": get_accuracy(pred_labels, true_labels, balanced=True),
             },
         },
     }
 
-    inputs_array_by_diagnosis = get_inputs_by_diagnosis(input_array, true_array)
+    inputs_array_by_diagnosis = get_inputs_by_diagnosis(input_array, true_output)
 
     for input_idx in range(len(metrics["Counts"]["inputs"])):
         metrics["Counts"]["inputs"][input_idx] = get_input_counts(
