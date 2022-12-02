@@ -134,16 +134,6 @@ def get_metrics(
     pred_output = predicted_array[:, 1:3]
     true_output = true_array[:, 1:3]
 
-    questions = [
-        "What other things do you experience right before or at the beginning of a seizure?",
-        "Please describe what you feel right before or at the beginning of a seizure.",
-        "Please specify other warning.",
-        "Which warnings do you get before you have a seizure?",
-        "Please specify other symptoms.",
-        "Describe what happens during your seizures.",
-        "How long do your seizures last?",
-    ]
-
     metrics = {
         "Name": "Evaluation 1",
         "Description": "Metrics for Epilepsy vs Non-Epilepsy classes.",
