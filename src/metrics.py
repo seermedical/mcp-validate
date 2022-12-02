@@ -1,6 +1,9 @@
+"""Script of functions to compute a high-level statstical summary
+and performance of model."""
+
+from typing import Dict, Sequence
 import numpy as np
 from sklearn.metrics import accuracy_score, balanced_accuracy_score
-from typing import Dict, Sequence
 
 
 def get_inputs_by_diagnosis(
