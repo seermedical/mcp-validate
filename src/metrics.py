@@ -9,19 +9,18 @@ from sklearn.metrics import accuracy_score, balanced_accuracy_score
 def get_inputs_by_diagnosis(
     input_array: np.ndarray, true_array: np.ndarray
 ) -> Sequence:
-    """Returns a tuple of lists of patient IDs for each
-    diagnostic cohort.
+    """Returns a tuple of arrays, where each array is filtered
+    to include only patients with a given diagnosis.
 
     Args:
-        input_array: Input data where rows represent each patient, and columns
-            represent each input.
+        input_array: Input data where rows represent each patient, and
+            columns represent each input.
         true_array: True output of diagnoses.
 
     Returns:
-        Sequence: Set of filtered input arrays, where each
-            array represents a cohort of patients in the
-            order of "Indeterminate", "Non Epilepsy" and
-            "Epilepsy".
+        Sequence: Set of filtered input arrays, where each array
+            represents a cohort of patients in the order of
+            indeterminate, non-epilepsy, and epilepsy.
     """
 
     return (
@@ -32,7 +31,7 @@ def get_inputs_by_diagnosis(
 
 
 def get_responses_counts(question: str, input_dict: Dict) -> Dict:
-    """Returns the count of patients that have a responded
+    """Returns the total number of patients that have a responded
     to a selected question.
 
     Args
@@ -47,8 +46,8 @@ def get_responses_counts(question: str, input_dict: Dict) -> Dict:
 
 
 def get_input_counts(input_arrays: np.ndarray, input_idx: int) -> Dict:
-    """For each diagnostic cohort, counts the number of 1s, 0s, and NaN
-    inputs used for the model.
+    """Counts the number of 1s, 0s, and NaN values for each
+    diagnostic class.
 
     Args:
         input_arrays: Set of input arrays, filtered by diagnosis.
@@ -96,14 +95,15 @@ def get_accuracy(
     balanced: bool = False,
     normalize: bool = False,
 ) -> float:
-    """Returns accuracy of predicted output as a percentage.
+    """Returns accuracy of predicted labels.
 
     Args:
-        pred_labels: Predicted output of diagnoses.
-        true_labels: True output of diagnoses.
+        pred_labels: Predicted labels of diagnoses.
+        true_labels: True labels of diagnoses.
 
     Returns:
-        score: Percentage of diagnoses that were correctly classified.
+        score: Score indicating the n or percentage
+            correctly classified.
     """
 
     if balanced:
@@ -117,7 +117,7 @@ def get_accuracy(
 
 def get_labels(output_array: np.ndarray) -> np.ndarray:
     """Computes the labels (i.e. n of positive diagnoses)
-    for each classification (i.e. diagnosis).
+    for each class (i.e. diagnosis).
 
     Args:
         output_array: The One Hot Encoded output array to
