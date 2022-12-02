@@ -39,6 +39,8 @@ def run(
         input_billing_codes_file
     )
 
+    # TODO: add test where questions are equivalent
+
     # Get input array
     input_array = transform_input(input_data)
 
