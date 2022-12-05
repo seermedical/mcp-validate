@@ -3,7 +3,6 @@ import pytest
 
 
 def mock_input_dict_template(
-    patient_id="patient_id",
     response_0="",
     response_1="",
     response_2="",
@@ -14,16 +13,14 @@ def mock_input_dict_template(
     response_7="",
 ):
     return {
-        patient_id: {
-            "What other things do you experience right before or at the beginning of a seizure?": response_0,
-            "Please describe what you feel right before or at the beginning of a seizure.": response_1,
-            "Please specify other warning.": response_2,
-            "Please specify other injuries.": response_3,
-            "Which warnings do you get before you have a seizure?": response_4,
-            "Please specify other symptoms.": response_5,
-            "Describe what happens during your seizures.": response_6,
-            "How long do your seizures last?": response_7,
-        }
+        "What other things do you experience right before or at the beginning of a seizure?": response_0,
+        "Please describe what you feel right before or at the beginning of a seizure.": response_1,
+        "Please specify other warning.": response_2,
+        "Please specify other injuries.": response_3,
+        "Which warnings do you get before you have a seizure?": response_4,
+        "Please specify other symptoms.": response_5,
+        "Describe what happens during your seizures.": response_6,
+        "How long do your seizures last?": response_7,
     }
 
 
@@ -65,37 +62,31 @@ def patient_6_dict():
 
 @pytest.fixture
 def patient_7_dict():
-    return mock_input_dict_template(
-        response_0="I get a headache and somtimes a bit dizzy!",
-        response_1="Usually when I go to the toilet.",
-        response_6="Blacking out.",
-    )
+    return {
+        "patient_7": mock_input_dict_template(
+            response_0="I get a headache and somtimes a bit dizzy!",
+            response_1="Usually when I go to the toilet.",
+            response_6="Blacking out.",
+        ),
+    }
 
 
 @pytest.fixture
 def mock_input_dict():
     return {
-        mock_input_dict_template(
-            patient_id="patient_8",
+        "patient_8": mock_input_dict_template(
             response_0="I go pale, I get a headache.",
             response_6="I droop.",
-        )[
-            0
-        ],  # non-epilepsy
-        mock_input_dict_template(
-            patient_id="patient_9",
+        ),  # non-epilepsy
+        "patient_9": mock_input_dict_template(
             response_0="I'm not sure",
             response_1="I'm not sure",
             response_6="I'm not sure",
             response_7="a few seconds",
-        )[
-            0
-        ],  # epilepsy
-        mock_input_dict_template(
-            patient_id="patient_10", response_0="Some text", response_1="Some text"
-        )[
-            0
-        ],  # indeterminate
+        ),  # epilepsy
+        "patient_10": mock_input_dict_template(
+            response_0="Some text", response_1="Some text"
+        ),  # indeterminate
     }
 
 
@@ -118,3 +109,8 @@ def mock_true_array():
 @pytest.fixture
 def mock_pred_array():
     return np.array([[0, 0, 1, 0, 0, 0], [0, 1, 0, 0, 0, 0], [1, 0, 0, 0, 0, 0]])
+
+
+@pytest.fixture
+def mock_input_billing_codes():
+    return {"patient_8": [], "patient_9": [], "patient_10": []}
