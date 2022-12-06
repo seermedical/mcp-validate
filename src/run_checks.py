@@ -5,7 +5,8 @@ from src.generate_inputs import QUESTIONS_DICT
 
 
 def run_checks(input_data: Dict, input_billing_codes: Dict) -> Any:
-    """_summary_
+    """Checks the input data is as expected before inputting to the
+    model.
 
     Args:
         input_data: Dictionary of patient's responses.
