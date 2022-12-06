@@ -27,7 +27,7 @@ def run_checks(input_data: Dict, input_billing_codes: Dict) -> Any:
             "Check 1/3: Failed. The length of input responses and input billing codes do not match."
         )
 
-    # Check 2: n of unique questions is 6
+    # Check 2: all patients have a dict key for all unique questions
     input_questions = []
     expected_questions = (
         QUESTIONS_DICT["before"] + QUESTIONS_DICT["during"] + QUESTIONS_DICT["duration"]
