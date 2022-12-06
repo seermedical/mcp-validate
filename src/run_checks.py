@@ -5,6 +5,19 @@ from src.generate_inputs import QUESTIONS_DICT
 
 
 def run_checks(input_data: Dict, input_billing_codes: Dict) -> Any:
+    """_summary_
+
+    Args:
+        input_data: Dictionary of patient's responses.
+        input_billing_codes: Dictionary of patients' billing codes.
+
+    Raises:
+        Exception: If length of input responses is not equal to length
+            of input billing codes do not match.
+        Exception: If any patients do not match on all unique questions.
+        Exception: If any patients do not have n of unique questions (even
+        if null).
+    """
 
     # Check 1: n of patients in both files is equal
     if len(input_data) == len(input_billing_codes):
