@@ -31,9 +31,16 @@ class TestChecks:
         except Exception:
             assert True
 
-    # def test_check_3_fails(self, mock_input_dict, mock_input_billing_codes):
-
-    #     try:
-    #         run_checks(mock_input_dict, mock_input_billing_codes)
-    #     except Exception:
-    #         assert True
+    def test_check_3_fails(self, mock_input_dict, mock_input_billing_codes):
+        mock_input_billing_codes_check_3 = {
+            "patient_8": mock_input_billing_codes["patient_8"],
+            "patient_9": mock_input_billing_codes["patient_9"],
+        }
+        mock_input_dict_check_3 = {
+            "patient_8": mock_input_dict["patient_8"],
+            "patient_9": mock_input_dict["patient_9"],
+        }["patient_8"].pop("Please specify other symptoms.")
+        try:
+            run_checks(mock_input_dict, mock_input_billing_codes)
+        except Exception:
+            assert True
