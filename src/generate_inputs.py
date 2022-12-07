@@ -4,9 +4,9 @@ to a One Hot Encoded matrix of input data.
 """
 
 from typing import Dict, List, Union
-
-import numpy as np
 import re
+import numpy as np
+
 
 QUESTIONS_DICT = {
     "before": [
@@ -144,7 +144,7 @@ def transform_input(input_dict: Dict[str, Dict[str, str]]) -> np.ndarray:
 
         Args:
             input_dict: Dictionary where keys represent a patient,
-                enclosing another dictionary of key (question), value (answer) pairs.
+                enclosing a second dictionary of key (question), value (answer) pairs.
                 N.b. If no value (answer), to a key (question), an empty string is expected.
                 Example:
                     {

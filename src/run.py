@@ -12,9 +12,10 @@ import argparse
 import json
 from typing import Dict, Optional
 
-from metrics import get_metrics
 from generate_inputs import transform_input
 from generate_outputs import get_predicted_output, get_true_output
+from metrics import get_metrics
+from run_checks import run_checks
 
 
 def read_json(path: str) -> Dict:
@@ -39,7 +40,8 @@ def run(
         input_billing_codes_file
     )
 
-    # TODO: add test where questions are equivalent
+    # Run checks on input data
+    run_checks(input_data, input_billing_codes)
 
     # Get input array
     input_array = transform_input(input_data)

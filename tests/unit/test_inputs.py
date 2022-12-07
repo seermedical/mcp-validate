@@ -33,7 +33,7 @@ class TestGetInputValues:
         """
 
         result = matches_criteria(
-            response_dict=mock_response_dict["patient_id"],
+            response_dict=mock_response_dict,
             keywords_dict=KEYWORDS_DICT[0],
         )
 
@@ -58,7 +58,7 @@ class TestGetInputValues:
         """
 
         result = matches_criteria(
-            response_dict=mock_response_dict["patient_id"],
+            response_dict=mock_response_dict,
             keywords_dict=KEYWORDS_DICT[1],
         )
 
