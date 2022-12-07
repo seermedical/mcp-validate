@@ -3,7 +3,6 @@ Script of functions to generate predicted and true output classes.
 """
 from typing import Dict, Sequence
 import numpy as np
-import re
 
 BILLING_CODES = {
     "focal": ["G40.0", "G40.1", "G40.2", "G40.5", "G41.2"],
