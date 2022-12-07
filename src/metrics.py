@@ -23,11 +23,7 @@ def get_inputs_by_diagnosis(
             indeterminate, non-epilepsy, and epilepsy.
     """
 
-    return (
-        input_array[np.where(true_array[:, 0] == 1)],
-        input_array[np.where(true_array[:, 1] == 1)],
-        input_array[np.where(true_array[:, 2] == 1)],
-    )
+    return tuple(input_array[np.where(true_array[:, x] == 1)] for x in range(3))
 
 
 def get_responses_counts(question: str, input_dict: Dict) -> Dict:
