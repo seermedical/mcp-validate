@@ -1,4 +1,4 @@
-"""Script of functions to check input data is as expected, before used 
+"""Script of functions to check input data is as expected, before used
 in model."""
 
 from typing import Any, Dict
