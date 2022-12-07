@@ -168,7 +168,7 @@ def get_metrics(
         },
         "Counts": {
             "responses": {},
-            "inputs": {0: {}, 1: {}, 2: {}, 3: {}, 4: {}, 5: {}},
+            "inputs": {},
             "diagnoses": {
                 "predicted": {
                     "indeterminate": pred_labels[0],
@@ -195,7 +195,7 @@ def get_metrics(
 
     inputs_array_by_diagnosis = get_inputs_by_diagnosis(input_array, true_output)
 
-    for input_idx in range(len(metrics["Counts"]["inputs"])):
+    for input_idx in range(input_array.shape[1]):
         metrics["Counts"]["inputs"][input_idx] = get_input_counts(
             inputs_array_by_diagnosis, input_idx
         )
