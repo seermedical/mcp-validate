@@ -40,6 +40,6 @@ class TestChecks:
             "patient_9": mock_input_dict["patient_9"],
         }["patient_8"].pop("Please specify other symptoms.")
         try:
-            run_checks(mock_input_dict, mock_input_billing_codes)
+            run_checks(mock_input_billing_codes_check_3, mock_input_dict_check_3)
         except Exception:
             assert True
