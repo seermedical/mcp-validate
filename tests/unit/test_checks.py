@@ -1,4 +1,3 @@
-import pytest
 from src.run_checks import run_checks
 
 
