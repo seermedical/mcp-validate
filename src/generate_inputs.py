@@ -4,9 +4,9 @@ to a One Hot Encoded matrix of input data.
 """
 
 from typing import Dict, List, Union
-
-import numpy as np
 import re
+import numpy as np
+
 
 QUESTIONS_DICT = {
     "before": [
