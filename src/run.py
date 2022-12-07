@@ -12,6 +12,7 @@ import argparse
 import json
 from typing import Dict, Optional
 
+from metrics import get_metrics
 from generate_inputs import transform_input
 from generate_outputs import get_predicted_output, get_true_output
 
@@ -38,12 +39,17 @@ def run(
         input_billing_codes_file
     )
 
+    # TODO: add test where questions are equivalent
+
     # Get input array
     input_array = transform_input(input_data)
 
     # Run model
     predicted_output = get_predicted_output(input_array)
     true_output = get_true_output(input_billing_codes)
+
+    # Get metrics
+    metrics = get_metrics(input_data, predicted_output, true_output, normalize=False)
 
     return
 
