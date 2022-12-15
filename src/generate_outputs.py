@@ -56,6 +56,34 @@ def set_diagnosis(list_of_billing_codes: Sequence[str]) -> np.ndarray:
     return output_row
 
 
+def set_single_diagnosis(output_array: np.ndarray) -> np.ndarray:
+    """Takes the raw output array of diagnoses and sets a single diagnosis
+    (class) per patient, based on diagnostic heirachy.
+    N.b. Sub-epilepsy diagnoses, e.g. focal, etc. are not removed
+    here.
+
+    Args:
+        output_array (np.ndarray): Array of patient diagnoses, with multiple
+            diagnoses per patient.
+
+    Returns:
+        np.ndarray: Array of patient diagnoses, with one diagnosis per patient.
+    """
+    output_array_single_class = output_array.copy()
+
+    for row_idx in range(output_array.shape[0]):
+        row = output_array[row_idx]
+        if np.count_nonzero(row) > 1:
+            if row[0] == 1:
+                raise Exception("Multiple diagnoses set with 'Indeterminate' class.")
+            elif row[2] == 1:
+                output_array_single_class[row_idx, :2] = 0
+            else:
+                raise Exception("Multiple diagnoses mismatch.")
+
+    return output_array_single_class
+
+
 def has_undefined_values(input_array: np.ndarray, threshold: int = 3) -> bool:
     """Counts if number of NaNs in a given array is above a given threshold.
 
