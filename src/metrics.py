@@ -5,6 +5,8 @@ from typing import Dict, Sequence
 import numpy as np
 from sklearn.metrics import accuracy_score, balanced_accuracy_score
 
+from src.generate_outputs import set_single_diagnosis
+
 
 def get_inputs_by_diagnosis(
     input_array: np.ndarray, true_array: np.ndarray
@@ -135,6 +137,7 @@ def get_metrics(
     input_array: np.ndarray,
     pred_output: np.ndarray,
     true_output: np.ndarray,
+    use_single_class: bool = True,
 ):
     """Computes and returns a high-level statistical summary and
     performance metrics.
@@ -144,22 +147,38 @@ def get_metrics(
         input_array: Input data to model, represented by flags.
         predicted_array: Predicted output of patient's diagnoses.
         true_array: True output of patient's diagnoses.
+        use_single_class: Indicates if single or multi diagnoses
+            should be used to compute statistics and performance.
 
     Returns:
         dict: A dictionary of summary and performance statistics.
     """
 
+    # Reduce to single class, i.e. single diagnoses per patient
+    true_output_single = set_single_diagnosis(true_output)
+    true_labels_single = get_labels(true_output_single)
+
     pred_labels = get_labels(pred_output)
     true_labels = get_labels(true_output)
+
+    if use_single_class:
+        test_output = true_output_single
+        test_labels = true_labels_single
+    else:
+        test_output = true_output
+        test_labels = true_labels
 
     metrics = {
         "Name": "Evaluation 1",
         "Description": "Metrics for Epilepsy vs Non-Epilepsy classes.",
         "Summary": {
-            "total": {"predicted": pred_output.shape[0], "true": true_output.shape[0]},
+            "total": {
+                "predicted": pred_output.shape[0],
+                "true": test_output.shape[0],
+            },
             "total_classes": {
                 "predicted": pred_output.shape[1],
-                "true": true_output.shape[1],
+                "true": test_output.shape[1],
             },
         },
         "Counts": {
@@ -172,24 +191,24 @@ def get_metrics(
                     "epilepsy": pred_labels[2],
                 },
                 "true": {
-                    "indeterminate": true_labels[0],
-                    "non_epilepsy": true_labels[1],
-                    "epilepsy": true_labels[2],
+                    "indeterminate": test_labels[0],
+                    "non_epilepsy": test_labels[1],
+                    "epilepsy": test_labels[2],
                 },
             },
         },
         "Performance": {
             "accuracy": {
-                "total": get_accuracy(pred_labels, true_labels),
-                "percentage": get_accuracy(pred_labels, true_labels, normalize=True),
+                "total": get_accuracy(pred_labels, test_labels),
+                "percentage": get_accuracy(pred_labels, test_labels, normalize=True),
             },
             "accuracy_balanced": {
-                "total": get_accuracy(pred_labels, true_labels, balanced=True),
+                "total": get_accuracy(pred_labels, test_labels, balanced=True),
             },
         },
     }
 
-    inputs_array_by_diagnosis = get_inputs_by_diagnosis(input_array, true_output)
+    inputs_array_by_diagnosis = get_inputs_by_diagnosis(input_array, test_output)
 
     for input_idx in range(input_array.shape[1]):
         metrics["Counts"]["inputs"][input_idx] = get_input_counts(
