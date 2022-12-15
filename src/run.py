@@ -46,12 +46,19 @@ def run(
     # Get input array
     input_array = transform_input(input_data)
 
-    # Run model
-    predicted_output = get_predicted_output(input_array)
+    # Get output array
     true_output = get_true_output(input_billing_codes)
 
+    # Run model
+    predicted_output = get_predicted_output(input_array)
+
     # Get metrics
-    metrics = get_metrics(input_data, predicted_output, true_output, normalize=False)
+    metrics = get_metrics(
+        input_data,
+        predicted_output,
+        true_output,
+        use_single_class=True,
+    )
 
     return
 
