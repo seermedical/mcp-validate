@@ -34,7 +34,12 @@ def set_diagnosis(list_of_billing_codes: Sequence[str]) -> np.ndarray:
     # Init row
     output_row = np.zeros([1, 5])
 
-    # Populate rows
+    # Indeterminate, if no ICD-10 codes
+    if not list_of_billing_codes:
+        output_row[0, 0] = 1
+        return output_row
+
+    # Epilepsy sub-type, if matches epilepsy ICD-10 codes
     for i, billing_code_category in enumerate(
         [
             BILLING_CODES["focal"],
@@ -48,10 +53,13 @@ def set_diagnosis(list_of_billing_codes: Sequence[str]) -> np.ndarray:
         ):
             output_row[0, i + 2] = 1
 
+    # Non-epilepsy, if doesn't match epilpesy ICD-10 codes
     if output_row.sum() == 0:
-        output_row[0, 0] = 1
-    else:
         output_row[0, 1] = 1
+
+    # Epilepsy, if at least one epilepsy sub-type
+    else:
+        output_row[0, 2] = 1
 
     return output_row
 
