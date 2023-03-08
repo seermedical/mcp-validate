@@ -9,4 +9,4 @@ To run the code, please ensure the `src` directory is available in the host envi
 
 For example:
 
-`python run.py my_directory/patient_responses.json my_directory/patient_diagnoses.py`
+`python run.py patient_responses.json patient_diagnoses.json`
