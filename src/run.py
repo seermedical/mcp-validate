@@ -10,7 +10,10 @@ Authors: Dominique Eden & Pip Karoly
 
 import argparse
 import json
-from typing import Dict, Optional
+import os
+from typing import Dict, Union
+import numpy as np
+import pandas as pd
 
 from generate_inputs import transform_input
 from generate_outputs import get_predicted_output, get_true_output
@@ -22,7 +25,7 @@ def read_json(path: str) -> Dict:
     """Reads JSON file and returns a dict.
 
     Args:
-        path: Absolute path to JSON file.
+        path: Path to JSON file.
 
     Returns:
         dict: Dictionary of data read from JSON file.
@@ -32,9 +35,43 @@ def read_json(path: str) -> Dict:
         return json.load(f)
 
 
-def run(
-    input_data_file: str, input_billing_codes_file: str, output_path: Optional[str]
-) -> None:
+def write_json(path: str, data: Dict):
+    """Writes JSON file.
+
+    Args:
+        path: Path to JSON file.
+        data: Data to write.
+    """
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(data, f, allow_nan=True, indent=4)
+    return
+
+
+def save_outputs(outputs: Dict[str, Union[np.ndarray, Dict]], output_path: str):
+    """Saves output data to files.
+
+    Args:
+        outputs: Dict of key, value pairs indicating name of file and data
+            respectively.
+        output_path: Directory to save outputs.
+
+    Raises:
+        TypeError: _description_
+    """
+    for k, v in outputs.items():
+        if isinstance(v, np.ndarray):
+            pd.DataFrame(v).to_csv(os.path.join(output_path, f"{k}.csv"))
+
+        elif isinstance(v, dict):
+            write_json(os.path.join(output_path, f"{k}.json"), v)
+
+        else:
+            raise TypeError("Output type(s) not as expected.")
+
+        print(f"Saved {k} to {output_path}")
+
+
+def run(input_data_file: str, input_billing_codes_file: str, output_path: str) -> None:
 
     input_data, input_billing_codes = read_json(input_data_file), read_json(
         input_billing_codes_file
@@ -51,9 +88,20 @@ def run(
     true_output = get_true_output(input_billing_codes)
 
     # Get metrics
-    metrics = get_metrics(input_data, predicted_output, true_output, normalize=False)
+    metrics = get_metrics(input_array, predicted_output, true_output)
 
-    return
+    # Save
+    save_outputs(
+        outputs={
+            "input_array": input_array,
+            "predicted_output": predicted_output,
+            "true_output": true_output,
+            "metrics": metrics,
+        },
+        output_path=output_path,
+    )
+
+    return print("Complete.")
 
 
 if __name__ == "__main__":
@@ -71,7 +119,7 @@ if __name__ == "__main__":
         help="Path to JSON file storing patient ICD-10 billing codes.",
     )
     parser.add_argument(
-        "-o", "--output_path", default=".", help="Path to save outputs."
+        "-o", "--output_path", default=os.getcwd(), help="Path to save outputs."
     )
 
     args = parser.parse_args()
