@@ -198,8 +198,8 @@ def get_true_output(input_billing_codes: Dict[str, Sequence[str]]) -> np.ndarray
     true_output = np.zeros([len(input_billing_codes), 5])
 
     for idx, patient in enumerate(patient_keys):
-        patient_values = input_billing_codes[patient].values()
-
-        true_output[idx] = set_diagnosis(list_of_billing_codes=patient_values)
+        true_output[idx] = set_diagnosis(
+            list_of_billing_codes=input_billing_codes[patient]
+        )
 
     return true_output
