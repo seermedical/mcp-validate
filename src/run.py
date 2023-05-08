@@ -15,10 +15,10 @@ from typing import Dict, Union
 import numpy as np
 import pandas as pd
 
-from generate_inputs import transform_input
-from generate_outputs import get_predicted_output, get_true_output
-from metrics import get_metrics
-from run_checks import run_checks
+from src.generate_inputs import transform_input
+from src.generate_outputs import get_predicted_output, get_true_output
+from src.metrics import get_metrics
+from src.run_checks import run_checks
 
 
 def read_json(path: str) -> Dict:

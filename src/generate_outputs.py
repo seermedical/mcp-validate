@@ -15,15 +15,18 @@ BILLING_CODES = {
         "G40.4",
     ],
     "unknown": ["G40.8", "G40.9", "G41.8", "G41.9"],
+    "pnes": ["F44.5"],
+    "syncope": ["R55"],
+    "other": ["G43", "G44", "G45", "G46", "G47"],
 }
 
 
-def set_diagnosis(list_of_billing_codes: Sequence[str]) -> np.ndarray:
+def set_diagnosis(patient_codes: Sequence[str]) -> np.ndarray:
     """Uses a list of ICD-10 billing codes to generate a row per patient
     for diagnostic array (see get_predicted_output).
 
     Args:
-        list_of_billing_codes: List of ICD-10 billing codes
+        patient_codes: List of ICD-10 billing codes
             for a patient.
 
     Returns:
@@ -32,33 +35,41 @@ def set_diagnosis(list_of_billing_codes: Sequence[str]) -> np.ndarray:
     """
 
     # Init row
-    output_row = np.zeros([1, 5])
+    output_row = np.zeros([1, 6])
 
     # Indeterminate, if no ICD-10 codes
-    if not list_of_billing_codes:
+    if not patient_codes:
         output_row[0, 0] = 1
         return output_row
 
     # Epilepsy sub-type, if matches epilepsy ICD-10 codes
-    for i, billing_code_category in enumerate(
+    for i, accepted_codes in enumerate(
         [
-            BILLING_CODES["focal"],
-            BILLING_CODES["generalised"],
-            BILLING_CODES["unknown"],
+            tuple(BILLING_CODES["focal"]),
+            tuple(BILLING_CODES["generalised"]),
+            tuple(BILLING_CODES["unknown"]),
         ]
     ):
-        if any(
-            billing_code in billing_code_category
-            for billing_code in list_of_billing_codes
-        ):
-            output_row[0, i + 2] = 1
+        if any([code for code in patient_codes if code.startswith(accepted_codes)]):
+            output_row[0, i + 3] = 1
 
-    # Non-epilepsy, if doesn't match epilpesy ICD-10 codes
+    # Non-epilepsy, if matches non-epilepsy ICD-10 codes
+    for i, accepted_codes in enumerate(
+        [
+            tuple(BILLING_CODES["pnes"]),
+            tuple(BILLING_CODES["syncope"]),
+            tuple(BILLING_CODES["other"]),
+        ]
+    ):
+        if any([code for code in patient_codes if code.startswith(accepted_codes)]):
+            output_row[0, 1] = 1
+
+    # Indeterminate, if doesn't match any ICD-10 codes
     if output_row.sum() == 0:
-        output_row[0, 1] = 1
+        output_row[0, 0] = 1
 
     # Epilepsy, if at least one epilepsy sub-type
-    else:
+    if output_row[0, 3:].sum() > 0:
         output_row[0, 2] = 1
 
     return output_row
@@ -118,9 +129,8 @@ def get_predicted_output(input_array: np.ndarray) -> np.ndarray:
     n_rows = input_array.shape[0]
 
     # create an output array
-    predicted_output = np.zeros((n_rows, 8))
+    predicted_output = np.zeros((n_rows, 6))
 
-    # TODO: change logic to use indeterminate if NaNs
     for idx in range(n_rows):
         row = input_array[idx, :]
 
@@ -174,11 +184,9 @@ def get_true_output(input_billing_codes: Dict[str, Sequence[str]]) -> np.ndarray
     patient_keys = input_billing_codes.keys()
 
     # Init output array for true diagnoses
-    true_output = np.zeros([len(input_billing_codes), 5])
+    true_output = np.zeros([len(input_billing_codes), 6])
 
     for idx, patient in enumerate(patient_keys):
-        true_output[idx] = set_diagnosis(
-            list_of_billing_codes=input_billing_codes[patient]
-        )
+        true_output[idx] = set_diagnosis(patient_codes=input_billing_codes[patient])
 
     return true_output
