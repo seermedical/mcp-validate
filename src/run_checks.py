@@ -4,7 +4,7 @@ in model."""
 from typing import Any, Dict
 import pandas as pd
 
-from generate_inputs import QUESTIONS_DICT
+from src.generate_inputs import QUESTIONS_DICT
 
 
 def run_checks(input_data: Dict, input_billing_codes: Dict) -> Any:
