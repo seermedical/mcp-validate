@@ -105,7 +105,7 @@ def get_predicted_output(input_array: np.ndarray) -> np.ndarray:
     Returns:
         predicted_output: Output array where rows represent patients and columns represent
             predicted diagnosis. Output classes are as follows:
-            Output 1 - Indeterminate
+            Output 1 - Indeterminate (no answers to questions)
             Output 2 - Non-epileptic
             Output 3 - Epileptic
             Output 4 - Focal
@@ -160,7 +160,7 @@ def get_true_output(input_billing_codes: Dict[str, Sequence[str]]) -> np.ndarray
     Returns:
         true_output: Output array where rows represent patients and columns represent
             true diagnosis. Output classes are as follows:
-            Output 1 - Indeterminate
+            Output 1 - Indeterminate (no billing codes or billing codes match)
             Output 2 - Non-epileptic
             Output 3 - Epileptic
             Output 4 - Focal
