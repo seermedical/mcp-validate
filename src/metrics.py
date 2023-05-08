@@ -182,11 +182,15 @@ def get_metrics(
         },
         "Performance": {
             "accuracy": {
-                "total": get_accuracy(pred_labels, true_labels),
-                "percentage": get_accuracy(pred_labels, true_labels, normalize=True),
+                "total": get_accuracy(
+                    pred_labels[1:], true_labels[1:]
+                ),  # remove 'indeterminate' cols for AUC
+                "percentage": get_accuracy(
+                    pred_labels[1:], true_labels[1:], normalize=True
+                ),
             },
             "accuracy_balanced": {
-                "total": get_accuracy(pred_labels, true_labels, balanced=True),
+                "total": get_accuracy(pred_labels[1:], true_labels[1:], balanced=True),
             },
         },
     }
