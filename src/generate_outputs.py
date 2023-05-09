@@ -130,23 +130,22 @@ def get_predicted_output(input_array: np.ndarray) -> np.ndarray:
 
     # create an output array
     predicted_output = np.zeros((n_rows, 6))
-
     for idx in range(n_rows):
         row = input_array[idx, :]
 
         # No data
         if has_undefined_values(row, threshold=1):
-            continue
+            predicted_output[idx, 0] = 1
         # Indeterminate
-        if has_undefined_values(row, threshold=3):
+        elif has_undefined_values(row, threshold=3):
             predicted_output[idx, 0] = 1
         # Epilepsy vs Non-epilepsy
-        if has_positive_values(row):
-            # Non-epilepsy
-            predicted_output[idx, 1] = 1
-        else:
+        elif has_positive_values(row, 2):
             # Epilepsy
             predicted_output[idx, 2] = 1
+        else:
+            # Non-epilepsy
+            predicted_output[idx, 1] = 1
 
     return predicted_output
 
