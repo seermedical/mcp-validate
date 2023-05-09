@@ -76,12 +76,11 @@ class TestTransformInput:
         [
             (
                 pytest.lazy_fixture("patient_7_dict"),
-                [1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+                [1, 1, 0, 0, 1, 0],
             ),  # Tests for flags 1, 2, and 5
         ],
     )
     def test_transform_input(self, mock_response_dict, expected_output):
-
         result = transform_input(input_dict=mock_response_dict)
         expected = np.array([expected_output]).astype(float)
 
