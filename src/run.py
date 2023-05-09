@@ -13,7 +13,6 @@ import json
 import os
 from typing import Dict, Union
 import numpy as np
-import pandas as pd
 
 from src.generate_inputs import transform_input
 from src.generate_outputs import get_predicted_output, get_true_output
@@ -60,7 +59,7 @@ def save_outputs(outputs: Dict[str, Union[np.ndarray, Dict]], output_path: str):
     """
     for k, v in outputs.items():
         if isinstance(v, np.ndarray):
-            pd.DataFrame(v).to_csv(os.path.join(output_path, f"{k}.csv"))
+            np.save(os.path.join(output_path, f"{k}.npy"), v)
 
         elif isinstance(v, dict):
             write_json(os.path.join(output_path, f"{k}.json"), v)
@@ -73,6 +72,9 @@ def save_outputs(outputs: Dict[str, Union[np.ndarray, Dict]], output_path: str):
 
 def run(input_data_file: str, input_billing_codes_file: str, output_path: str) -> None:
 
+    # Create output folder if doesn't exist
+    os.makedirs(output_path, exist_ok=True)
+
     input_data, input_billing_codes = read_json(input_data_file), read_json(
         input_billing_codes_file
     )
@@ -84,17 +86,17 @@ def run(input_data_file: str, input_billing_codes_file: str, output_path: str) -
     input_array = transform_input(input_data)
 
     # Run model
-    predicted_output = get_predicted_output(input_array)
+    pred_output = get_predicted_output(input_array)
     true_output = get_true_output(input_billing_codes)
 
     # Get metrics
-    metrics = get_metrics(input_array, predicted_output, true_output)
+    metrics = get_metrics(input_array, pred_output, true_output)
 
     # Save
     save_outputs(
         outputs={
             "input_array": input_array,
-            "predicted_output": predicted_output,
+            "pred_output": pred_output,
             "true_output": true_output,
             "metrics": metrics,
         },
