@@ -14,13 +14,19 @@ QUESTIONS_DICT = {
         "Please describe what you feel right before or at the beginning of a seizure.",
         "Please specify other warning.",
         "Which warnings do you get before you have a seizure?",
+        "Please describe what other symptoms you have.",
+        "What other things happen to you during your seizure?",
     ],
     "during": [
         "Please specify other symptoms.",
         "Describe what happens during your seizures.",
+        "What other things happen to you during your seizure?",
+        "What injuries have you experienced during a seizure?",
+        "Please specify other injuries.",
+        "Please describe what other symptoms you have.",
     ],
     "duration": ["How long do your seizures last?"],
-}
+}  # n.b. n of 11 unique questions
 
 
 KEYWORDS_DICT = {
@@ -182,7 +188,7 @@ def transform_input(input_dict: Dict[str, Dict[str, str]]) -> np.ndarray:
     """
 
     # Init (transformed) One Hot Encoded input array
-    input_array = np.zeros([len(input_dict), 13])
+    input_array = np.zeros([len(input_dict), 6])
 
     for row_idx, patient_dict in enumerate(input_dict.values()):
 
