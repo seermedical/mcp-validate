@@ -112,21 +112,46 @@ def get_accuracy(
 
 
 def get_labels(output_array: np.ndarray) -> np.ndarray:
-    """Computes the labels (i.e. n of positive diagnoses)
-    for each class (i.e. diagnosis).
+    """Computes the n of labels (n of positive diagnoses)
+    for each class (diagnosis).
 
     Args:
         output_array: The One Hot Encoded output array to
             compute labels across.
 
     Returns:
-        np.ndarray: Labels.
+        np.ndarray: The n of indeterminate, non-epilepsy,
+            and epilepsy diagnoses respectively.
     """
     return np.array(
         [
             get_counts(output_array, 0, 1),
             get_counts(output_array, 1, 1),
             get_counts(output_array, 2, 1),
+        ]
+    )
+
+
+def get_labels_auc(output_array: np.ndarray) -> np.ndarray:
+    """Computes the n of labels (n of positive diagnoses)
+    for each class (diagnosis) for AUC calculation.
+
+    The indeterminate category is removed for the purpose of
+    this calculation.
+
+    Args:
+        output_array: The One Hot Encoded output array to
+            compute labels across.
+
+    Returns:
+        np.ndarray: The n non-epilepsy, and epilepsy
+            diagnoses respectively.
+    """
+    output_array_auc = output_array[np.where(output_array[:, 0] != 1)]
+    return np.array(
+        [
+            get_counts(output_array_auc, 0, 1),
+            get_counts(output_array_auc, 1, 1),
         ]
     )
 
@@ -147,9 +172,11 @@ def get_metrics(
     Returns:
         dict: A dictionary of summary and performance statistics.
     """
-
     pred_labels = get_labels(pred_output)
     true_labels = get_labels(true_output)
+
+    pred_labels_auc = get_labels_auc(pred_output)
+    true_labels_auc = get_labels_auc(true_output)
 
     metrics = {
         "Name": "Evaluation 1",
@@ -183,14 +210,14 @@ def get_metrics(
         "Performance": {
             "accuracy": {
                 "total": get_accuracy(
-                    pred_labels[1:], true_labels[1:]
-                ),  # remove 'indeterminate' cols for AUC
+                    pred_labels_auc, true_labels_auc
+                ),  # select only non-epilepsy and epilepsy cols for AUC calc
                 "percentage": get_accuracy(
-                    pred_labels[1:], true_labels[1:], normalize=True
+                    pred_labels_auc, true_labels_auc, normalize=True
                 ),
             },
             "accuracy_balanced": {
-                "total": get_accuracy(pred_labels[1:], true_labels[1:], balanced=True),
+                "total": get_accuracy(pred_labels_auc, true_labels_auc, balanced=True),
             },
         },
     }
