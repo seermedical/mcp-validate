@@ -53,10 +53,10 @@ class TestMetrics:
             "Name": "Evaluation 1",
             "Description": "Metrics for Epilepsy vs Non-Epilepsy classes.",
             "Summary": {
-                "total": {"predicted": 3, "true": 3},
+                "total": {"predicted": 3.0, "true": 3.0},
                 "total_classes": {
-                    "predicted": 6,
-                    "true": 6,
+                    "predicted": 6.0,
+                    "true": 6.0,
                 },
             },
             "Counts": {
@@ -95,20 +95,20 @@ class TestMetrics:
                 },
                 "diagnoses": {
                     "predicted": {
-                        "indeterminate": 1,
-                        "non_epilepsy": 1,
-                        "epilepsy": 1,
+                        "indeterminate": 1.0,
+                        "non_epilepsy": 1.0,
+                        "epilepsy": 1.0,
                     },
                     "true": {
-                        "indeterminate": 1,
-                        "non_epilepsy": 1,
-                        "epilepsy": 1,
+                        "indeterminate": 1.0,
+                        "non_epilepsy": 1.0,
+                        "epilepsy": 1.0,
                     },
                 },
             },
             "Performance": {
                 "accuracy": {
-                    "total": 3,
+                    "total": 2.0,
                     "percentage": 1.0,
                 },
                 "accuracy_balanced": {"total": 1.0},

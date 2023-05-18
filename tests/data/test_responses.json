@@ -1,0 +1,32 @@
+{
+  "patient_1": {
+    "What other things do you experience right before or at the beginning of a seizure?": "",
+    "Please describe what you feel right before or at the beginning of a seizure.": "",
+    "Please specify other warning.": "",
+    "Please specify other injuries.": "",
+    "Which warnings do you get before you have a seizure?": "",
+    "Please specify other symptoms.": "",
+    "Describe what happens during your seizures.": "",
+    "How long do your seizures last?": ""
+  },
+  "patient_2": {
+    "What other things do you experience right before or at the beginning of a seizure?": "",
+    "Please describe what you feel right before or at the beginning of a seizure.": "",
+    "Please specify other warning.": "I don't have any.",
+    "Please specify other injuries.": "I don't get injured.",
+    "Which warnings do you get before you have a seizure?": "None.",
+    "Please specify other symptoms.": "",
+    "Describe what happens during your seizures.": "",
+    "How long do your seizures last?": ""
+  },
+  "patient_3": {
+    "What other things do you experience right before or at the beginning of a seizure?": "I get a headache and somtimes a bit dizzy!",
+    "Please describe what you feel right before or at the beginning of a seizure.": "Usually when I go to the toilet.",
+    "Please specify other warning.": "",
+    "Please specify other injuries.": "",
+    "Which warnings do you get before you have a seizure?": "",
+    "Please specify other symptoms.": "",
+    "Describe what happens during your seizures.": "Blacking out.",
+    "How long do your seizures last?": ""
+  }
+}
