@@ -137,9 +137,9 @@ def matches_criteria(
         # Search for keywords in patient's responses
         matched_criteria.append(search_keywords(input_text, patterns))
 
-    # Return None if no responses to relevant questions
-    if matched_criteria.count(None) == len(matched_criteria):
-        return None
+    # Return None if incomplete / no responses to relevant questions
+    if None in matched_criteria:
+        return None  # partial matches return None, e.g. has during but not duration
 
     return all(matched_criteria)
 
@@ -191,13 +191,11 @@ def transform_input(input_dict: Dict[str, Dict[str, str]]) -> np.ndarray:
     input_array = np.zeros([len(input_dict), 6])
 
     for row_idx, patient_dict in enumerate(input_dict.values()):
-
         # Set row to np.nan if no responses
         if not any(patient_dict.values()):
             input_array[row_idx, :] = np.nan
 
         for col_idx, keywords_dict in KEYWORDS_DICT.items():
-
             input_array[row_idx, col_idx] = matches_criteria(
                 patient_dict, keywords_dict
             )
