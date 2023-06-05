@@ -85,14 +85,14 @@ def has_undefined_values(input_array: np.ndarray, threshold: int = 3) -> bool:
     return np.count_nonzero(np.isnan(input_array)) > threshold
 
 
-def has_positive_values(input_array: np.ndarray, threshold: int = 0) -> bool:
-    """Checks if an array has enough non-zero data given a threshold.
+def has_positive_values(input_array: np.ndarray) -> bool:
+    """Checks if an array has at least one '1' value.
 
     Returns:
         bool: Returns True if n of non-zero elements exceeds threshold, and False if
                 n of non-zero elements does not exceed threshold.
     """
-    return np.count_nonzero(input_array) > threshold
+    return np.nansum(input_array) > 0
 
 
 def get_predicted_output(input_array: np.ndarray) -> np.ndarray:
@@ -132,20 +132,16 @@ def get_predicted_output(input_array: np.ndarray) -> np.ndarray:
     predicted_output = np.zeros((n_rows, 6))
     for idx in range(n_rows):
         row = input_array[idx, :]
-
-        # No data
-        if has_undefined_values(row, threshold=1):
-            predicted_output[idx, 0] = 1
-        # Indeterminate
-        elif has_undefined_values(row, threshold=3):
+        # Indeterminate (i.e. not enough data)
+        if has_undefined_values(row, threshold=3):
             predicted_output[idx, 0] = 1
         # Epilepsy vs Non-epilepsy
-        elif has_positive_values(row, 2):
+        elif has_positive_values(row):
+            # Non-Epilepsy
+            predicted_output[idx, 1] = 1
+        else:
             # Epilepsy
             predicted_output[idx, 2] = 1
-        else:
-            # Non-epilepsy
-            predicted_output[idx, 1] = 1
 
     return predicted_output
 
