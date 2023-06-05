@@ -76,7 +76,7 @@ class TestTransformInput:
         [
             (
                 pytest.lazy_fixture("patient_7_dict"),
-                [1, 1, 0, 0, 1, 0],
+                [1, 1, 0, np.nan, 1, 0],
             ),  # Tests for flags 1, 2, and 5
         ],
     )
