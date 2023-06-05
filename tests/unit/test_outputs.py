@@ -1,5 +1,4 @@
 import numpy as np
-from numpy.testing import assert_array_equal
 import pytest
 from src.generate_outputs import set_diagnosis
 
@@ -48,4 +47,4 @@ class TestSetDiagnosis:
 
         result = set_diagnosis(patient_codes=mock_patient_codes)
 
-        assert_array_equal(result, expected_result, strict=False)
+        np.testing.assert_array_equal(result, expected_result)

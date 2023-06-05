@@ -24,20 +24,42 @@ class TestEndToEnd:
         metrics = read_json(os.path.join(TEST_OUTPUT_DIR, "metrics.json"))
 
         expected_input_array = np.array(
-            ([np.nan] * 6, [0, 0, 0, np.nan, 0, 0], [1, 1, 0, np.nan, 1, 0])
+            (
+                [np.nan] * 6,
+                [0, 0, 0, np.nan, 0, 0],
+                [1, 1, 0, np.nan, 1, 0],
+                [1, 1, 0, np.nan, 1, 0],
+                [0, 0, 0, np.nan, 0, 0],
+            )
         )
         expected_pred_output = np.array(
-            ([[1, 0, 0, 0, 0, 0], [0, 1, 0, 0, 0, 0], [0, 0, 1, 0, 0, 0]])
+            (
+                [
+                    [1, 0, 0, 0, 0, 0],
+                    [0, 0, 1, 0, 0, 0],
+                    [0, 1, 0, 0, 0, 0],
+                    [0, 1, 0, 0, 0, 0],
+                    [0, 0, 1, 0, 0, 0],
+                ]
+            )
         )
         expected_true_output = np.array(
-            ([[0, 1, 0, 0, 0, 0], [0, 1, 0, 0, 0, 0], [0, 0, 1, 0, 0, 1]])
+            (
+                [
+                    [0, 1, 0, 0, 0, 0],
+                    [0, 1, 0, 0, 0, 0],
+                    [0, 0, 1, 0, 0, 1],
+                    [0, 1, 0, 0, 0, 0],
+                    [0, 0, 1, 1, 0, 0],
+                ]
+            )
         )
 
         expected_metrics = {
             "Name": "Evaluation 1",
             "Description": "Metrics for Epilepsy vs Non-Epilepsy classes.",
             "Summary": {
-                "total": {"predicted": 3.0, "true": 3.0},
+                "total": {"predicted": 5.0, "true": 5.0},
                 "total_classes": {
                     "predicted": 6.0,
                     "true": 6.0,
@@ -48,57 +70,56 @@ class TestEndToEnd:
                 "inputs": {
                     "0": {
                         "indeterminate": {"0": 0, "1": 0, "NaN": 0},
-                        "non_epilepsy": {"0": 1, "1": 0, "NaN": 1},
-                        "epilepsy": {"0": 0, "1": 1, "NaN": 0},
+                        "non_epilepsy": {"0": 1, "1": 1, "NaN": 1},
+                        "epilepsy": {"0": 1, "1": 1, "NaN": 0},
                     },
                     "1": {
                         "indeterminate": {"0": 0, "1": 0, "NaN": 0},
-                        "non_epilepsy": {"0": 1, "1": 0, "NaN": 1},
-                        "epilepsy": {"0": 0, "1": 1, "NaN": 0},
+                        "non_epilepsy": {"0": 1, "1": 1, "NaN": 1},
+                        "epilepsy": {"0": 1, "1": 1, "NaN": 0},
                     },
                     "2": {
                         "indeterminate": {"0": 0, "1": 0, "NaN": 0},
-                        "non_epilepsy": {"0": 1, "1": 0, "NaN": 1},
-                        "epilepsy": {"0": 1, "1": 0, "NaN": 0},
+                        "non_epilepsy": {"0": 2, "1": 0, "NaN": 1},
+                        "epilepsy": {"0": 2, "1": 0, "NaN": 0},
                     },
                     "3": {
                         "indeterminate": {"0": 0, "1": 0, "NaN": 0},
-                        "non_epilepsy": {"0": 0, "1": 0, "NaN": 2},
-                        "epilepsy": {"0": 0, "1": 0, "NaN": 1},
+                        "non_epilepsy": {"0": 0, "1": 0, "NaN": 3},
+                        "epilepsy": {"0": 0, "1": 0, "NaN": 2},
                     },
                     "4": {
                         "indeterminate": {"0": 0, "1": 0, "NaN": 0},
-                        "non_epilepsy": {"0": 1, "1": 0, "NaN": 1},
-                        "epilepsy": {"0": 0, "1": 1, "NaN": 0},
+                        "non_epilepsy": {"0": 1, "1": 1, "NaN": 1},
+                        "epilepsy": {"0": 1, "1": 1, "NaN": 0},
                     },
                     "5": {
                         "indeterminate": {"0": 0, "1": 0, "NaN": 0},
-                        "non_epilepsy": {"0": 1, "1": 0, "NaN": 1},
-                        "epilepsy": {"0": 1, "1": 0, "NaN": 0},
+                        "non_epilepsy": {"0": 2, "1": 0, "NaN": 1},
+                        "epilepsy": {"0": 2, "1": 0, "NaN": 0},
                     },
                 },
                 "diagnoses": {
                     "predicted": {
                         "indeterminate": 1.0,
-                        "non_epilepsy": 1.0,
-                        "epilepsy": 1.0,
+                        "non_epilepsy": 2.0,
+                        "epilepsy": 2.0,
                     },
                     "true": {
                         "indeterminate": 0.0,
-                        "non_epilepsy": 2.0,
-                        "epilepsy": 1.0,
+                        "non_epilepsy": 3.0,
+                        "epilepsy": 2.0,
                     },
                 },
             },
             "Performance": {
                 "accuracy": {
-                    "total": 1.0,
+                    "total": 2.0,
                     "percentage": 0.5,
                 },
                 "accuracy_balanced": {"total": 0.5},
             },
         }
-
         np.testing.assert_array_equal(input_array, expected_input_array)
         np.testing.assert_array_equal(true_output, expected_true_output)
         np.testing.assert_array_equal(pred_output, expected_pred_output)
